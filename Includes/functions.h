@@ -26,7 +26,7 @@ struct leptonStruct{
 
     TLorentzVector v;
     double charge, iso, scEta;
-    int id, trigger;
+    int lepID, id, trigger;
 };
 
 struct jetStruct{

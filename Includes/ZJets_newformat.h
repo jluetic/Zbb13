@@ -475,6 +475,7 @@ class ZJets: public HistoSetZJets {
 		      TString pdfSet = "", int pdfMember = -1, double muR = 0, double muF = 0,
 		      double yieldScale = 1.);
         void     getMuons(vector<leptonStruct>& leptons,  vector<leptonStruct>& vetoMuons);
+	void     getEMuons(vector<leptonStruct>& leptons,  vector<leptonStruct>& vetoMuons);
         void     getElectrons(vector<leptonStruct>& leptons,  vector<leptonStruct>& vetoElectrons);
         Bool_t   Notify();
         void     Show(Long64_t entry = -1);
