@@ -503,13 +503,22 @@ HistoSetZJets::HistoSetZJets(TString leptonFlavor)
 	mindRofJetToZ_Zpt100le200_Zexc1jet  = newTH1D("mindRofJetToZ_Zpt100le200_Zexc1jet","Minimum dR between jet and Z boson for (N_{jets} #eq 1) 100.gt.ZpT.le.200","min dR(jet,Z)", 100, 0, 4.);
 	mindRofJetToZ_Zpt200le400_Zexc1jet  = newTH1D("mindRofJetToZ_Zpt200le400_Zexc1jet","Minimum dR between jet and Z boson for (N_{jets} #eq 1) 200.gt.ZpT.le.400 ","min dR(jet,Z)", 100, 0, 4.);
 	mindRofJetToZ_Zptgt400_Zexc1jet  = newTH1D("mindRofJetToZ_Zptgt400_Zexc1jet","Minimum dR between jet and Z boson for (N_{jets} #eq 1) ZPt ge 400","min dR(jet,Z)", 100, 0, 4.);
-
+        // the above but now with cuts on jet Pt
+        mindRofJetToZ_JetPtle100_Zexc1jet = newTH1D("mindRofJetToZ_JetPtle100_Zexc1jet","Minimum dR between jet and Z boson for (N_{jets} #eq 1) JetpT le 100","min dR(jet,Z)", 100, 0, 4.); 
+        mindRofJetToZ_JetPt100le200_Zexc1jet = newTH1D("mindRofJetToZ_JetPt100le200_Zexc1jet","Minimum dR between jet and Z boson for (N_{jets} #eq 1) JetpT le 100","min dR(jet,Z)", 100, 0, 4.); 
+        mindRofJetToZ_JetPt200le400_Zexc1jet = newTH1D("mindRofJetToZ_JetPt200le400_Zexc1jet","Minimum dR between jet and Z boson for (N_{jets} #eq 1) JetpT le 100","min dR(jet,Z)", 100, 0, 4.); 
+        mindRofJetToZ_JetPtgt400_Zexc1jet = newTH1D("mindRofJetToZ_JetPtgt400_Zexc1jet","Minimum dR between jet and Z boson for (N_{jets} #eq 1) JetpT le 100","min dR(jet,Z)", 100, 0, 4.); 
 	// min dR between inc 1 jets and Z
 	mindRofJetToZ_Zinc1jet  = newTH1D("mindRofJetToZ_Zinc1jet","Minimum dR between jet and Z boson for (N_{jets} #geq 1)","min dR(jet,Z)", 100, 0, 4.);
 	mindRofJetToZ_Zptle100_Zinc1jet  = newTH1D("mindRofJetToZ_Zptle100_Zinc1jet","Minimum dR between jet and Z boson for (N_{jets} #geq 1) ZpT le 100","min dR(jet,Z)", 100, 0, 4.);
 	mindRofJetToZ_Zpt100le200_Zinc1jet  = newTH1D("mindRofJetToZ_Zpt100le200_Zinc1jet","Minimum dR between jet and Z boson for (N_{jets} #geq 1) 100.gt.ZpT.le.200","min dR(jet,Z)", 100, 0, 4.);
 	mindRofJetToZ_Zpt200le400_Zinc1jet  = newTH1D("mindRofJetToZ_Zpt200le400_Zinc1jet","Minimum dR between jet and Z boson for (N_{jets} #geq 1) 200.gt.ZpT.le.400 ","min dR(jet,Z)", 100, 0, 4.);
 	mindRofJetToZ_Zptgt400_Zinc1jet  = newTH1D("mindRofJetToZ_Zptgt400_Zinc1jet","Minimum dR between jet and Z boson for (N_{jets} #geq 1) ZPt ge 400","min dR(jet,Z)", 100, 0, 4.);
+
+//// min dR in leading jet Pt cases
+
+
+///// end min dR in leading jet Pt case
 	METE_Zinc0jet = newTH1D("MET_Zinc0jet","MET E distribution in inc0 jet", "MET",100, 0.,1000. ); 
 	METPt_Zinc0jet = newTH1D("METPt_Zinc0jet","MET Pt distribution in inc0 jet", "MET Pt",100, 0.,1000. );
 	METE_Zinc1jet = newTH1D("MET_Zinc1jet","MET E distribution in inc1 jet","MET", 100, 0.,1000.);
@@ -690,6 +699,8 @@ HistoSetZJets::HistoSetZJets(TString leptonFlavor)
 	FirstBJetPt_Zexc2Bjet_b = newTH1D("FirstBJetPt_Zexc2B_b","b-jet pt (inc 2 b jet)","b-jet pt", nbins, 0, maxX);
 	SecondBJetPt_Zexc2Bjet_b = newTH1D("SecondBJetPt_Zexc2B_b","b-jet pt (inc 2 b jet)","b-jet pt", nbins, 0, maxX);
 	CSV = newTH1D("CSV","CSV","CSV", 20, 0, 1.);
+	bJetCSV = newTH1D("bJetCSV","bJetCSV","bJetCSV", 20, 0, 1.);
+	allJetCSV = newTH1D("allJetCSV","allJetCSV","allJetCSV", 20, 0, 1.);
 
 	METE_Zinc1Bjet = newTH1D("MET_Zinc1Bjet","MET E distribution in inc1 B-jet","MET", 23, 0.,230.);
         METPt_Zinc1Bjet = newTH1D("METPt_Zinc1Bjet","MET Pt distribution in inc1 B-jet", "MET Pt",20, 0.,200. );

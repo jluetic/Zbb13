@@ -13,9 +13,9 @@ class sample:
 
 doSubmit = True
 subprocess.call("make", shell=True)
-samples = {"DYJETS","BACKGROUND"}
-#samples = {"DYJETS","DATA","BACKGROUND"}
-nJobs = 1
+#samples = {"DYJETS","BACKGROUND"}
+samples = {"DYJETS","DATA","BACKGROUND"}
+nJobs = 20
 f = open("template.sh","r").read()
 
 
@@ -34,6 +34,6 @@ for s in samples:
 			subprocess.call(command, shell=True)
 		bla.updateJobN()
 
-	#nJobs-=5
+	nJobs-=5
 
 
