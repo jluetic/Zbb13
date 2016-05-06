@@ -1021,7 +1021,7 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
 			if (index > -1 ){
 				matchingTable[i][index] = 1; 
 				double oldJetPt = jets[i].v.Pt();
-				double newJetPt = SmearJetPt(oldJetPt, genJets[index].v.Pt(), jets[i].v.Eta(), smearJet);
+				double newJetPt = SmearJetPt_76X(oldJetPt, genJets[index].v.Pt(), jets[i].v.Eta(), smearJet);
 				jets[i].v.SetPtEtaPhiE(newJetPt, jets[i].v.Eta(), jets[i].v.Phi(), jets[i].v.E() * newJetPt / oldJetPt);
 			}
 		}

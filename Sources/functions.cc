@@ -272,6 +272,72 @@ double SmearJetPt(double recoPt, double genPt, double eta, int smearJet){
 
 }
 
+double SmearJetPt_76X(double recoPt, double genPt, double eta, int smearJet){
+    // Fall 2015 resolution scale factor
+    // twiki.cern.ch/twiki/bin/view/CMS/JetResolution
+    double centralSF(1.00);
+    if      (fabs(eta) < 0.5) centralSF = 1.095;
+    else if (fabs(eta) < 0.8) centralSF = 1.120;
+    else if (fabs(eta) < 1.1) centralSF = 1.097;
+    else if (fabs(eta) < 1.3) centralSF = 1.103;
+    else if (fabs(eta) < 1.7) centralSF = 1.118;
+    else if (fabs(eta) < 1.9) centralSF = 1.100;
+    else if (fabs(eta) < 2.1) centralSF = 1.162;
+    else if (fabs(eta) < 2.3) centralSF = 1.160;
+    else if (fabs(eta) < 2.5) centralSF = 1.161;
+    else if (fabs(eta) < 2.8) centralSF = 1.209;
+    else if (fabs(eta) < 3.0) centralSF = 1.564;
+    else if (fabs(eta) < 3.2) centralSF = 1.384;
+    else if (fabs(eta) < 5.0) centralSF = 1.216;
+    else centralSF = 1.320;
+
+    double upSF(1.00);
+    if      (fabs(eta) < 0.5) upSF = 1.095+0.018;
+    else if (fabs(eta) < 0.8) upSF = 1.120+0.028;
+    else if (fabs(eta) < 1.1) upSF = 1.097+0.017;
+    else if (fabs(eta) < 1.3) upSF = 1.103+0.033;
+    else if (fabs(eta) < 1.7) upSF = 1.118+0.014;
+    else if (fabs(eta) < 1.9) upSF = 1.100+0.033;
+    else if (fabs(eta) < 2.1) upSF = 1.162+0.044;
+    else if (fabs(eta) < 2.3) upSF = 1.160+0.048;
+    else if (fabs(eta) < 2.5) upSF = 1.161+0.060;
+    else if (fabs(eta) < 2.8) upSF = 1.209+0.059;
+    else if (fabs(eta) < 3.0) upSF = 1.564+0.321;
+    else if (fabs(eta) < 3.2) upSF = 1.384+0.033;
+    else if (fabs(eta) < 5.0) upSF = 1.216+0.050;
+    else upSF = 1.606;
+
+    double downSF(1.00);
+    if      (fabs(eta) < 0.5) downSF = 1.095-0.018;
+    else if (fabs(eta) < 0.8) downSF = 1.120-0.028;
+    else if (fabs(eta) < 1.1) downSF = 1.097-0.017;
+    else if (fabs(eta) < 1.3) downSF = 1.103-0.033;
+    else if (fabs(eta) < 1.7) downSF = 1.118-0.014;
+    else if (fabs(eta) < 1.9) downSF = 1.100-0.033;
+    else if (fabs(eta) < 2.1) downSF = 1.162-0.044;
+    else if (fabs(eta) < 2.3) downSF = 1.160-0.048;
+    else if (fabs(eta) < 2.5) downSF = 1.161-0.060;
+    else if (fabs(eta) < 2.8) downSF = 1.209-0.059;
+    else if (fabs(eta) < 3.0) downSF = 1.564-0.321;
+    else if (fabs(eta) < 3.2) downSF = 1.384-0.033;
+    else if (fabs(eta) < 5.0) downSF = 1.216-0.050;
+    else downSF = 1.034;
+
+    double smearedPt(0);
+
+    if (smearJet == 0) {
+        smearedPt = std::max(0., genPt + centralSF*(recoPt - genPt));
+    }
+    else if (smearJet == 1) {
+        smearedPt = std::max(0., genPt + upSF*(recoPt - genPt));
+    }
+    else if (smearJet == -1) {
+        smearedPt = std::max(0., genPt + downSF*(recoPt - genPt));
+    }
+
+    return smearedPt;
+
+}
 
 void bestTwoJetsCandidatesPt(vector<jetStruct> jets, pair<TLorentzVector, TLorentzVector>& bestTwoJets)
 {
@@ -427,39 +493,26 @@ double weightJetEventProducer(std::vector <jetStruct> &Jetovi, double cut){
 	double w1=0.;
 	double w2=1.;
 	int cntB=0;
-	//int cntJ=0, cntJ1=0;
-	// nula b-jetova
 
+	// 0 b-jets
 	for (auto jet:Jetovi){
-		//if(cntJ==3) break;
 		w0 *=(1- jet.SFb);
-		//cout << "[weightJetEventProducer] SF:" << jet.SFb << endl;
-		//cntJ++;
 		if (jet.BDiscCisvV2>cut) cntB++;
 	}
 	if (cntB==0) return w0;
-	//// 1 b jet
-	//cntJ =0;
+	// 1 b jet
 	for (auto &jet:Jetovi){
-		//if (cntJ==3) break;
 		double w1temp=1;
-		//cntJ1=0;
 		for (auto &jet1:Jetovi){
-			//if (cntJ1==3) break;
  			if (&jet != &jet1 ) w1temp *=(1- jet1.SFb); 
 			else w1temp*=jet.SFb;
-			//cntJ1++;
 		}
 		w1 += w1temp;
-		//cntJ++;
 	}
-	//if (cntB>1) cout << "\n[weightJetEventProducer] Number of jets in the event: " << Jetovi.size() << ", number of B-tagged jets: " << cntB << endl; 
-	//if (cntB>1) cout << "[weightJetEventProducer] SF w1:" << w1 ;
 	if (cntB == 1) {
-		//cout << endl;
 		return w1;}
+	// 2 b-jets
 	w2=1-w0-w1;
-	//cout << " w2:" << w2 << endl;
 	if (cntB > 1) return w2;
 	return 1;
 }
