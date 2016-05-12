@@ -399,21 +399,16 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
                 getMuons(leptons, vetoMuons);
 
             }
-
-
             //--- get Electrons ---
             if (lepSel == "DE" || lepSel == "SE") {
                 getElectrons(leptons, vetoElectrons);
             }
-
-
             //--- get E-Muons ---
             if (lepSel == "EMu") {
                // cout << MuEta->size() << "\n";
                 getEMuons(leptons, vetoMuons);
 
             }
-
 
             //--- get MET --- 
            // if (lepSel == "SMu" || lepSel == "SE") {
@@ -426,15 +421,11 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
             nVetoMuons = vetoMuons.size();
             nVetoElectrons = vetoElectrons.size();
 
-
             //--- sort leptons by descending pt ---
             sort(leptons.begin(), leptons.end(), LepDescendingOrder);
             sort(vetoMuons.begin(), vetoMuons.end(), LepDescendingOrder);
 
             sort(vetoElectrons.begin(), vetoElectrons.end(), LepDescendingOrder);
-
-            //-- determine if the event passes the leptons requirements for EWKBoson = Z Boson
-           // cout << " nLeptons " << nLeptons << "\n";
 
             if ((lepSel == "DMu" || lepSel == "DE") && nLeptons >= 2) {
                 // --- lepton energy scale and resolution variation ---
@@ -472,8 +463,6 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
                 nEventsWithTwoGoodLeptons++;
                 nEffEventsWithTwoGoodLeptons += weight;
     
-		//  if(!hasGenInfo){   // CommentAG: comment this out since don't enter 'lepton energy smearing' block
-		// build Electroweak boson candidate: here it is expected to be a Z
 
                 if (!EvtIsRealData) {
                     double effWeight = 1.;
@@ -890,7 +879,7 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
 		} //End of loop over all the jets
 
 		//Get Event Flavour - FIXME!!! in 76X
-		for (int b=0; b<nTotJets; b++){
+/*		for (int b=0; b<nTotJets; b++){
 			if (abs(JetAk04PartFlav->at(b)) == 5){
 				evFlav=5;
 				break;
@@ -898,7 +887,7 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
 			else if (abs(JetAk04PartFlav->at(b)) == 4) evFlav=4;
 				
 			}
-
+*/
 		nGoodJets = jets.size();
 		weightBJets = weight;
 		if (!EvtIsRealData)  weightBJets *=weightJetEventProducer(jets,b_tag_cut);
@@ -987,7 +976,8 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
 		}
 		nGoodGenJets = genJets.size();
 		//for (auto gJet:GJetAk04MatchedPartonID)
-/*		for (int b=0; b<nTotGenJets; b++){
+		evFlav=0;
+		for (int b=0; b<nTotGenJets; b++){
 			if (abs(GJetAk04MatchedPartonID->at(b)) == 5){
 				evFlav=5;
 				break;
@@ -996,7 +986,8 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
 				evFlav=4;
 				}
 			}
-*/	}
+		//cout << "evFlavour: " << evFlav << endl;
+	}
 	//=======================================================================================================//
 
 
@@ -1066,7 +1057,6 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
                 jetsHT += jets[i].v.Pt();  
             	}
 //JL
-	    if (!EvtIsRealData) weight *=weightJetEventProducer(jets, b_tag_cut);
 	    for (unsigned short i(0); i < nGoodJets; i++) {
 		//if (i>3) break;
 		if ( jets[i].isBJet ) {

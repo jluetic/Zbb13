@@ -214,7 +214,8 @@ void RecoComparison(bool doPASPlots, TString lepSel, TString histoDir, TString r
 
 // getting histos
 
-    for (unsigned int i = 0; i < NFILESDYJETS-1; ++i) {
+    //for (unsigned int i = 0; i < NFILESDYJETS-1; ++i) {
+    for (unsigned int i = 0; i < NFILESDYJETS; ++i) {
 	for (int j = 0; j < nHist; ++j) {
             hist[i][j] = getHisto(fSamples[i], vhNames[j]);
 
@@ -225,10 +226,10 @@ void RecoComparison(bool doPASPlots, TString lepSel, TString histoDir, TString r
 	    }
     	}
     }    
-    addZbb(hist,vhNames,vhNames_b, NFILESDYJETS-1, fSamples);
+    //addZbb(hist,vhNames,vhNames_b, NFILESDYJETS-1, fSamples);
 
 //styling histos
-    for (unsigned int i = 0; i < NFILESDYJETS+2; ++i) {
+    for (unsigned int i = 0; i < NFILESDYJETS; ++i) {
 	for (int j = 0; j < nHist; ++j) {
             hist[i][j]->SetTitle(vhTitles[j]);
             if (i == 0) {
