@@ -82,11 +82,11 @@ int main(int argc, char **argv)
     //for(int ivar = 0; ivar < NVAROFINTEREST; ++ivar){
     // getStatistics(lepSel, jetPtMin, jetEtaMax, VAROFINTEREST[ivar].name);
     //}
-    getStatistics(lepSel, jetPtMin, jetEtaMax, "ZNGoodJets_Zexc");
-    getStatistics(lepSel, jetPtMin, jetEtaMax, "ZNGoodJets_Zinc");
-    getStatistics(lepSel, jetPtMin, jetEtaMax, "FirstJetPt_Zinc1jet");
-    getStatistics(lepSel, jetPtMin, jetEtaMax, "SecondJetPt_Zinc2jet");
-    getStatistics(lepSel, jetPtMin, jetEtaMax, "ThirdJetPt_Zinc3jet");
+    //getStatistics(lepSel, jetPtMin, jetEtaMax, "ZNGoodJets_Zexc");
+    //getStatistics(lepSel, jetPtMin, jetEtaMax, "ZNGoodJets_Zinc");
+    //getStatistics(lepSel, jetPtMin, jetEtaMax, "FirstJetPt_Zinc1jet");
+    //getStatistics(lepSel, jetPtMin, jetEtaMax, "SecondJetPt_Zinc2jet");
+    //getStatistics(lepSel, jetPtMin, jetEtaMax, "ThirdJetPt_Zinc3jet");
     getStatistics(lepSel, jetPtMin, jetEtaMax, "ZptBJets_Zinc2B");
     
     //getStatistics("Electrons", 30);

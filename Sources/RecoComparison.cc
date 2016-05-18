@@ -13,7 +13,7 @@
 #include <TLegend.h>
 #include "getFilesAndHistogramsZJets.h"
 #include "ConfigVJets.h"
-
+#include "doPlot.h"
 //--  Setting global variables --------------------------------------------------------------
 #include "fileNamesZJets.h"
 //-------------------------------------------------------------------------------------------
@@ -33,27 +33,28 @@ using namespace std;
  */
 
 
-template < int x, int y >
-void addZbb(TH1D *(&hist)[x][y], std::vector<TString> vhNames,std::vector<TString> vhNames_b, int current,TFile** fSamples)
+    template < int x, int y >
+void addZbb(std::vector<TString> vhNames,std::vector<TString> vhNames_b, TFile** fSamples)
 {
 
-	TString name;
-	TString end[3] = {"_l","_c","_b"};
+    TString name;
+    TString end[3] = {"_l","_c","_b"};
+    TH1D *hist[30];
+    int current = 3;
 
-	for (unsigned int i = current; i< current+3; i++){
-		for ( unsigned int j=0; j<vhNames.size(); j++){
-			//cout << vhNames[j] << endl;
-			for(int k=3; k<vhNames_b.size(); k++){
-				if (vhNames[j]==vhNames_b[k](0,vhNames_b[k].Length()-2) && vhNames_b[k].EndsWith(end[i-current])){
-					name = vhNames_b[k];
-					break;
-				}
-				else name = vhNames[j];
-			}
-			hist[i][j] = getHisto(fSamples[current], name);
-		}
-		
-	}
+    for (unsigned int i = 0; i< 7; i++){
+        for ( unsigned int j=0; j<vhNames.size(); j++){
+            //cout << vhNames[j] << endl;
+            for(int k=3; k<vhNames_b.size(); k++){
+                if (vhNames[j]==vhNames_b[k](0,vhNames_b[k].Length()-2) && vhNames_b[k].EndsWith(end[i-current])){
+                    name = vhNames_b[k];
+                    break;
+                }
+                else name = vhNames[j];
+            }
+            hist[i][j] = getHisto(fSamples[current], name);
+        }
+    }
 }
 
 
@@ -70,15 +71,15 @@ void RecoComparison(bool doPASPlots, TString lepSel, TString histoDir, TString r
 
     int Colors[NFILESDYJETS+2];
     TString legendNames[NFILESDYJETS+2];
-    
+
     //-- get the files, legend names and colors -----------------------------------------------------------
     TFile *fSamples[NFILESDYJETS];
     for (unsigned short i = 0; i < NFILESDYJETS; ++i){
 
-	int iSample = FilesDYJets[i];
+        int iSample = FilesDYJets[i];
 
-	if(iSample < 0) continue;
-	
+        if(iSample < 0) continue;
+
         //--- get the file ---
         TString syst = "0";
         if (iSample != 0) syst = "0";
@@ -93,7 +94,7 @@ void RecoComparison(bool doPASPlots, TString lepSel, TString histoDir, TString r
             else if (lepSel == "SE")  legendNames[i] = " e Data";
             else                      legendNames[i] = " Data";
         }
-	//        else if (i == NFILESDYJETS-1) 
+        //        else if (i == NFILESDYJETS-1) 
         //    legendNames[i] = (lepSel == "DMu") ? " Z/#gamma^{*} #rightarrow #mu#mu" : "Z/#gamma^{*} #rightarrow ee"; 
         else 
             legendNames[i] = doPASPlots ? Samples[iSample].legendPAS : Samples[iSample].legendAN; 
@@ -101,13 +102,6 @@ void RecoComparison(bool doPASPlots, TString lepSel, TString histoDir, TString r
         Colors[i] = doPASPlots ? Samples[iSample].colorPAS : Samples[iSample].colorAN;    
     }
 
-	Colors[NFILESDYJETS-1] = kGreen-3;
-	Colors[NFILESDYJETS] = kGreen-6;
-	Colors[NFILESDYJETS+1] = kGreen-9;
-
-	legendNames[NFILESDYJETS-1] = "Z+l";
-	legendNames[NFILESDYJETS] = "Z+(c)c";
-	legendNames[NFILESDYJETS+1] = "Z+(b)b";
 
     //-----------------------------------------------------------------------------------------------------
 
@@ -146,7 +140,7 @@ void RecoComparison(bool doPASPlots, TString lepSel, TString histoDir, TString r
         if (hName.Index("Ratio") >= 0 || hTemp->GetEntries() < 1 || !hTemp->InheritsFrom(TH1D::Class()) ) continue;
         //--- store the histograme name  and title ---
         vhNames.push_back(hName);
-	cout << hName << endl;
+        //cout << hName << endl;
         vhTitles.push_back(hTitle);
     } 
     for (unsigned short i = 0; i < nTotHist; ++i) {
@@ -154,121 +148,14 @@ void RecoComparison(bool doPASPlots, TString lepSel, TString histoDir, TString r
         TH1D *hTemp = (TH1D*) fSamples[0]->Get(hName);
         TString hTitle = hTemp->GetName();
         //--- skip histogram if it is gen or has no entry or is not a TH1 ---
-        if (hName.EndsWith("_b") || hName.EndsWith("_c") || hName.EndsWith("_l")){
-        //--- store the histograme name  and title ---
-	cout << "B  names: " << hName << endl;
-        vhNames_b.push_back(hName);
-        vhTitles_b.push_back(hTitle);}
+        if (hName.EndsWith("_b")){
+            //--- store the histograme name  and title ---
+            cout << "B  names: " << hName << endl;
+            vhNames_b.push_back(hName);
+            vhTitles_b.push_back(hTitle);}
     } 
 
-    TH1D *hist[10][500]={ { } };
-
-    //--- vhNames size gives us the number of reco histograms
-    //    interesting for comparison at reco level
-    const int nHist = vhNames.size();
-
-    THStack *hSumMC[nHist];
-    TLegend *legend[nHist];
-
-    TLatex *cmsColl = new TLatex();
-    cmsColl->SetTextSize(0.04);
-    cmsColl->SetTextFont(61);
-    cmsColl->SetLineWidth(2);
-    cmsColl->SetTextColor(kBlack);
-    cmsColl->SetNDC();
-    cmsColl->SetTextAlign(11);
-
-
-    TLatex *cmsPrel = new TLatex();
-    cmsPrel->SetTextSize(0.04);
-    cmsPrel->SetTextFont(52);
-    cmsPrel->SetLineWidth(2);
-    cmsPrel->SetTextColor(kBlack);
-    cmsPrel->SetNDC();
-    cmsPrel->SetTextAlign(11);
-
-    TLatex *jetAlgo = new TLatex();
-    jetAlgo->SetTextSize(0.035);
-    jetAlgo->SetTextFont(42);
-    jetAlgo->SetLineWidth(2);
-    jetAlgo->SetTextColor(kBlack);
-    jetAlgo->SetNDC();
-    jetAlgo->SetTextAlign(11);
-
-    TLatex *jetCuts = new TLatex();
-    jetCuts->SetTextSize(0.035);
-    jetCuts->SetTextFont(42);
-    jetCuts->SetLineWidth(2);
-    jetCuts->SetTextColor(kBlack);
-    jetCuts->SetNDC();
-    jetCuts->SetTextAlign(11);
-
-    TLatex *intLumi = new TLatex();
-    intLumi->SetTextSize(0.03);
-    intLumi->SetTextFont(42);
-    intLumi->SetLineWidth(2);  
-    intLumi->SetTextColor(kBlack);
-    intLumi->SetNDC();
-    intLumi->SetTextAlign(31);
-
-
-// getting histos
-
-    //for (unsigned int i = 0; i < NFILESDYJETS-1; ++i) {
-    for (unsigned int i = 0; i < NFILESDYJETS; ++i) {
-	for (int j = 0; j < nHist; ++j) {
-            hist[i][j] = getHisto(fSamples[i], vhNames[j]);
-
-	    if(!hist[i][j]) {
-	      std::cerr << "Histogram " << vhNames[j] 
-			<< " was not found for sample " << Samples[FilesDYJets[i]].name << "\n";
-	      continue;
-	    }
-    	}
-    }    
-    //addZbb(hist,vhNames,vhNames_b, NFILESDYJETS-1, fSamples);
-
-//styling histos
-    for (unsigned int i = 0; i < NFILESDYJETS; ++i) {
-	for (int j = 0; j < nHist; ++j) {
-            hist[i][j]->SetTitle(vhTitles[j]);
-            if (i == 0) {
-                hist[0][j]->SetMarkerStyle(20);
-                hist[0][j]->SetMarkerColor(Colors[0]);
-                hist[0][j]->SetLineColor(Colors[0]);
-                hSumMC[j] = new THStack(vhNames[j], vhTitles[j]);
-
-                if (!doPASPlots) { 
-                    legend[j] = new TLegend(0.72, 0.45, 0.76, 0.86);
-                    legend[j]->SetTextSize(0.032);
-                }
-                else {
-                    legend[j] = new TLegend(0.63, 0.55, 0.81, 0.87);
-                    legend[j]->SetTextSize(0.042);
-                }
-		legend[j]->SetFillStyle(0);
-		legend[j]->SetBorderSize(0);
-		legend[j]->SetTextFont(42);
-            }
-            else {
-	        hist[i][j]->SetFillStyle(1001);
-	        hist[i][j]->SetFillColor(Colors[i]);
-                hist[i][j]->SetLineColor(Colors[i]);
-                hSumMC[j]->Add(hist[i][j]);
-                //if (!doPASPlots || i == 1 || i == 3 || i == 5 || i == 11) legend[j]->AddEntry(hist[i][j], legendNames[i], "f");
-            }
-        } //next histo j
-    } //next file i
-
-
-    //Fill the legend in reverse order of drawing in order
-    //that the legend lines order matches with stacked histogram one.
-    for (int j = 0; j < nHist; ++j) {
-      if(NFILESDYJETS > 0) legend[j]->AddEntry(hist[0][j], legendNames[0], "ep");
-      for (int i = NFILESDYJETS + 1; i > 0; --i) {
-	legend[j]->AddEntry(hist[i][j], legendNames[i], "f");
-      }
-    }
+    std::vector<TH1D*> hist;
     //reads integrated luminosity
     double lumi = -1;
     TH1* Lumi;
@@ -276,130 +163,59 @@ void RecoComparison(bool doPASPlots, TString lepSel, TString histoDir, TString r
     if(Lumi) lumi = Lumi->GetBinContent(1) / 1000.;
     else cerr << "Warning: Lumi histogram was not found. The integrated luminosity indicaion will be missing from the plots.\n";
 
-    cout << "Now creating the pdf files ..." << endl;
-    for (unsigned short i = 0; i < nHist; ++i) {
-
-        TCanvas *canvas = new TCanvas(vhNames[i], vhNames[i], 700, 900);
-        canvas->cd();
-
-        TPad *pad1 = new TPad("pad1", "pad1", 0, 0.3, 1, 1);
-        pad1->SetTopMargin(0.11);
-        pad1->SetBottomMargin(0.);
-        pad1->SetRightMargin(0.03);
-        pad1->SetTicks();
-        pad1->SetLogy();
-        pad1->Draw();
-        pad1->cd();
-
-        TH1D *hRatio = (TH1D*) hSumMC[i]->GetStack()->Last()->Clone();
-	
-	// Need to draw MC Stack first other wise
-        // cannot access Xaxis !!!
-        hSumMC[i]->Draw("HIST"); 
-        if (vhNames[i].Index("ZMass_Z") >= 0){
-            hist[0][i]->GetXaxis()->SetRangeUser(71,110.9);
-            hSumMC[i]->GetXaxis()->SetRangeUser(71,110.9);
-            hRatio->GetXaxis()->SetRangeUser(71,110.9);
-        }
-
-
-        hSumMC[i]->SetTitle(""); 
-        hSumMC[i]->GetYaxis()->SetLabelSize(0.04); 
-        hSumMC[i]->GetYaxis()->SetLabelOffset(0.002); 
-        hSumMC[i]->GetYaxis()->SetTitle("# Events"); 
-        hSumMC[i]->GetYaxis()->SetTitleSize(0.04); 
-        hSumMC[i]->GetYaxis()->SetTitleOffset(1.32); 
-        hSumMC[i]->SetMinimum(8);
-        hSumMC[i]->SetMaximum(100*hSumMC[i]->GetMaximum()); 
-
-        // first pad plots
-        hist[0][i]->DrawCopy("e same");
-        legend[i]->Draw();
-        cmsColl->DrawLatex(0.13,0.82, "CMS Preliminary");
-	//        cmsPrel->DrawLatex(0.13,0.78, "Preliminary");
-	//        if (energy == "7TeV")      intLumi->DrawLatex(0.97,0.9, "5.05 fb^{-1} (7 TeV)");
-	//        else if (energy == "8TeV") intLumi->DrawLatex(0.97,0.9, "19.6 fb^{-1} (8 TeV)");
-	if(lumi >= 0) intLumi->DrawLatex(0.97, 0.9, TString::Format("%.3g fb^{-1} (%s)", lumi, energy.Data()));
-        if (vhNames[i].Index("inc0") < 0){
-            if (!doPASPlots) {
-                ostringstream ptLegend;
-                if (vhNames[i].Index("JetPt_Zinc") > 0) {
-                    ptLegend << "p_{T}^{jet} > 20 GeV,  |y^{jet}| < " << (0.1*jetEtaMax);
-                }
-                else {
-                    ptLegend << "p_{T}^{jet} > " << jetPtMin << "GeV,  |y^{jet}| < " << (0.1*jetEtaMax);
-                }
-                jetAlgo->DrawLatex(0.13,0.68, "anti-k_{t} jets,  R = 0.4");
-                jetCuts->DrawLatex(0.13,0.63, ptLegend.str().c_str());
+    // getting histos
+    int nHist = vhNames.size();
+    for (int j = 1; j < nHist; ++j) {
+        for (unsigned int i = 1; i < NFILESDYJETS; ++i) {
+            hist.push_back(getHisto(fSamples[i], vhNames[j]));
+            if(!hist[i-1]) {
+                std::cerr << "Histogram " << vhNames[j] 
+                    << " was not found for sample " << Samples[FilesDYJets[i]].name << "\n";
+                continue;
             }
-            pad1->Draw();
         }
-        canvas->cd();
-        TPad *pad2 = new TPad("pad2", "pad2", 0, 0, 1, 0.3);
-        pad2->SetTopMargin(0.);
-        pad2->SetBottomMargin(0.3);
-        pad2->SetRightMargin(0.03);
-        pad2->SetGridy();
-        pad2->SetTicks();
-        pad2->Draw();
-        pad2->cd();
-
-        hRatio->SetStats(0);
-        hRatio->SetTitle("");
-
-        hRatio->SetMarkerStyle(20);
-        hRatio->SetMarkerColor(Colors[0]);
-        hRatio->SetLineColor(Colors[0]);
-
-        hRatio->GetXaxis()->SetTickLength(0.03);
-        hRatio->GetXaxis()->SetTitleSize(0.1);
-        hRatio->GetXaxis()->SetTitleOffset(1.2);
-        hRatio->GetXaxis()->SetLabelSize(0.12);
-        hRatio->GetXaxis()->SetLabelOffset(0.017);
-
-        hRatio->GetYaxis()->SetRangeUser(0.51,1.49);
-        hRatio->GetYaxis()->SetNdivisions(5,5,0);
-        hRatio->GetYaxis()->SetTitle("Simulation/Data");
-        hRatio->GetYaxis()->SetTitleSize(0.1);
-        hRatio->GetYaxis()->SetTitleOffset(0.5);
-        hRatio->GetYaxis()->CenterTitle();
-        hRatio->GetYaxis()->SetLabelSize(0.08);
-
-        hRatio->Divide(hist[0][i]);
-        hRatio->DrawCopy("EP");
-
-        canvas->cd();
-        canvas->Update();
-
-        TString outputFilePDF = outputFileName + "/" + vhNames[i] + ".pdf";
-        canvas->Print(outputFilePDF);
-        outputFile->cd();
-        canvas->Write();
-	
-        TString outputFileBase = outputFileName + "/" + vhNames[i];
-	canvas->SaveAs(outputFileBase + ".root");
-	canvas->SaveAs(outputFileBase + ".C");
-
-        hSumMC[i]->SetMaximum(1.5*hSumMC[i]->GetMaximum());
-        TCanvas *tmpCanvas = (TCanvas*) canvas->Clone();
-        tmpCanvas->cd();
-        tmpCanvas->Draw();
-        TPad *tmpPad = (TPad*) tmpCanvas->GetPrimitive("pad1");
-        tmpPad->SetLogy(0);
-        vhNames[i] += "_Lin";
-        tmpCanvas->SetTitle(vhNames[i]);
-        tmpCanvas->SetName(vhNames[i]);
-        tmpCanvas->Update();
-        TString outputFileLinPDF = outputFileName + "/" + vhNames[i] + ".pdf";
-        tmpCanvas->Print(outputFileLinPDF);
-        outputFile->cd();
-        tmpCanvas->Write();
-
-	TString outputFileLinBase = outputFileName + "/" + vhNames[i];
-	tmpCanvas->SaveAs(outputFileLinBase + ".root");
-	tmpCanvas->SaveAs(outputFileLinBase + ".C");
-
+        doPlot *plot = new doPlot(getHisto(fSamples[0], vhNames[j]),hist);
+        plot->setLumi(lumi);
+        plot->setColors(Colors);
+        plot->setDoPasPlot(doPASPlots);
+        plot->setLegend(legendNames);
+        plot->setEnergy(energy);
+        plot->setOutputFileName(outputFileName);
+        plot->setTitle(vhNames[j]);
+        plot->makePlot();
+        delete plot;
+        hist.clear();
+        //break;
     }
+
+    int nHist_b = vhNames_b.size();
+    int last;
+    for (int j = 2; j < nHist_b; ++j) {
+        for (unsigned int i = 1; i < NFILESDYJETS-1; ++i) {
+            hist.push_back(getHisto(fSamples[i], vhNames_b[j](0,vhNames_b[j].Length()-2)));
+            if(!hist[i-1]) {
+                std::cerr << "Histogram " << vhNames[j] 
+                    << " was not found for sample " << Samples[FilesDYJets[i]].name << "\n";
+                continue;
+            }
+            last=i;
+        }
+        hist.push_back(getHisto(fSamples[last+1], vhNames_b[j](0,vhNames_b[j].Length()-2)+"_l"));
+        hist.push_back(getHisto(fSamples[last+1], vhNames_b[j](0,vhNames_b[j].Length()-2)+"_c"));
+        hist.push_back(getHisto(fSamples[last+1], vhNames_b[j](0,vhNames_b[j].Length()-2)+"_b"));
+        doPlot *plot = new doPlot(getHisto(fSamples[0], vhNames_b[j](0,vhNames_b[j].Length()-2)),hist);
+        plot->setLumi(lumi);
+        plot->setColors(Colors);
+        plot->setDoPasPlot(doPASPlots);
+        plot->setLegend(legendNames);
+        plot->setEnergy(energy);
+        plot->setOutputFileName(outputFileName);
+        plot->setTitle(vhNames_b[j](0,vhNames_b[j].Length()-2));
+        plot->makePlot();
+        delete plot;
+        hist.clear();
+        //break;
+    }    
 
     outputFile->cd();
     outputFile->Close();
