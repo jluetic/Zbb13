@@ -22,7 +22,7 @@ struct processInfoStruct{
 //--- last element must point to the MC Signal(s)
 //8TeV colours: MLM: kBlue-10, Sherpa: kOrange-2, FXFX: kGreen-8
 const processInfoStruct Samples[] = {
-    //--  Name  --- merge - #events -- xsec - BR - xsec rel. unc. - colorAN - colorPAS - name on legend
+    //--  Name     --- merge - #events -- xsec ---  BR - xsec rel. unc. - colorAN - colorPAS - name on legend
     /* 0*/{"Data",      ' ',     1.,       1.,      1,  1,        kBlack,    kBlack,    " Data", " Data"},
     /* 1*/{"TT",        ' ',     1.,       1.,      1,  0.10,     kBlue,     kBlue,     " TT",   " t#bar{t}"},  
     /* 2*/{"ST_sch",    '+',     1.,       1.,      1,  0.06,     kBlue+2,   kBlue+2,   " Single Top s-ch", " Single Top s-ch"},
@@ -36,9 +36,6 @@ const processInfoStruct Samples[] = {
     /*10*/{"WZ",    	'+',     1.,       1.,      1,  0.06,     kRed+1,    kRed+1,    " WZ", " WZ"},
     /*11*/{"VV",    	'=',     1.,       1.,      1,  0.06,     kRed+1,    kRed+1,    " VV", "VV"},              
     /*12*/{"DYJets_UNFOLDING", ' ', 1.,    1.,      1,  0.06,     kGreen-8,  kGreen-8,  " DYJets", " Z+jets"}, 
-    ///*12*/{"DYJets_UNFOLDING", ' ', 1.,    1.,      1,  0.06,     kGreen-3,  kGreen-3,  " DYJets", " Z+l"}, 
-    ///*13*/{"DYJets_UNFOLDING", ' ', 1.,    1.,      1,  0.06,     kGreen-6,  kGreen-6,  " DYJets", " Z+(c)c"}, 
-    ///*14*/{"DYJets_UNFOLDING", ' ', 1.,    1.,      1,  0.06,     kGreen-8,  kGreen-8,  " DYJets", " Z+(b)b"}, 
 };
 
 const int NSamples = sizeof(Samples) / sizeof(Samples[0]);

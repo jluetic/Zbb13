@@ -10,6 +10,7 @@
 #include "TObject.h"
 #include <sstream>
 #include "ConfigVJets.h"
+#include "lepSel.h"
 
 ConfigVJets::ConfigVJets(const char* filename){
     readConfigVJets(filename);
@@ -192,6 +193,10 @@ void ConfigVJets::convert(const std::string& str, std::string&  x) const{
     x = str;
 }
 
+void ConfigVJets::convert(const std::string& str, selection&  x) const{  
+    x = getLepSel(str);
+}
+
 template<typename T>
 void ConfigVJets::convert(const std::string& str, std::vector<T>& x) const{
     x.clear();
@@ -288,6 +293,8 @@ template
 void ConfigVJets::set<float>(const char* key, const float& value);
 template
 void ConfigVJets::set<double>(const char* key, const double& value);
+template
+void ConfigVJets::set<selection>(const char* key, const selection& value);
 template
 void ConfigVJets::set<std::string>(const char* key, const std::string& value);
 template

@@ -26,7 +26,7 @@
 #include "HistoSetZJets.h"
 #include "rochcor2015.h"
 #include "functions.h"
-
+#include "lepSel.h"
 
 using namespace std;
 
@@ -443,7 +443,7 @@ class ZJets: public HistoSetZJets {
 
 
 
-        ZJets(const TString& lepSel, TString sampleName, TString fileName_, float lumi_ = 1.,
+        ZJets(const selection lepSel, TString sampleName, TString fileName_, float lumi_ = 1.,
 	      bool useTriggerCorrection_ = 0, int systematics_ = 0, int direction_ = 0, float xsecfactor_ = 1., 
 	      int lepPtCutMin_ = 20, int lepEtaCutMax_ = 24, int jetPtCutMin_ = 30, 
 	      int jetEtaCutMax_ = 24, Long_t nEvents_ = 0, TString outDir_ = "TEST", 
@@ -515,7 +515,7 @@ class ZJets: public HistoSetZJets {
         int jetPtCutMin;
         int jetEtaCutMax;
         Long_t nMaxEvents;
-        TString lepSel;
+        selection lepSel;
         bool rejectBTagEvents;
 
 	std::vector<Double_t> InEvtWeightSums_;

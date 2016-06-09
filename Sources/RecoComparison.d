@@ -290,6 +290,6 @@ Sources/RecoComparison.o: Sources/RecoComparison.cc \
  /cvmfs/cms.cern.ch/slc6_amd64_gcc491/external/gcc/4.9.1-cms/include/c++/4.9.1/numeric \
  /cvmfs/cms.cern.ch/slc6_amd64_gcc491/external/gcc/4.9.1-cms/include/c++/4.9.1/bits/stl_numeric.h \
  /cvmfs/cms.cern.ch/slc6_amd64_gcc491/lcg/root/6.02.00-odfocd5/include/TObject.h \
- Sources/doPlot.h \
+ Includes/lepSel.h Sources/doPlot.h \
  /cvmfs/cms.cern.ch/slc6_amd64_gcc491/lcg/root/6.02.00-odfocd5/include/TH1D.h \
  Includes/fileNamesZJets.h

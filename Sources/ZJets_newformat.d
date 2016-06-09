@@ -1096,7 +1096,7 @@ Sources/ZJets_newformat.o: Sources/ZJets_newformat.cc \
  /cvmfs/cms.cern.ch/slc6_amd64_gcc491/lcg/root/6.02.00-odfocd5/include/TTimer.h \
  /cvmfs/cms.cern.ch/slc6_amd64_gcc491/lcg/root/6.02.00-odfocd5/include/TSysEvtHandler.h \
  /cvmfs/cms.cern.ch/slc6_amd64_gcc491/lcg/root/6.02.00-odfocd5/include/TTime.h \
- Includes/muresolution_run2.h Includes/functions.h \
+ Includes/muresolution_run2.h Includes/functions.h Includes/lepSel.h \
  /usr/include/sys/time.h /usr/include/regex.h Includes/ConfigVJets.h \
  /cvmfs/cms.cern.ch/slc6_amd64_gcc491/lcg/root/6.02.00-odfocd5/include/TObject.h \
  Includes/rochcor2015.h

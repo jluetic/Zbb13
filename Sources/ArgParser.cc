@@ -20,6 +20,11 @@ void getArg(TString fullArg, double &arg) {
     std::cout << "Using command line option " << fullArg << std::endl;
 }
 
+void getArg(TString fullArg, selection &arg) {
+    arg = getLepSel(TString(fullArg(fullArg.Index("=")+1, fullArg.Length())).Data());
+    std::cout << "Using command line option " << fullArg << std::endl;
+}
+
 void getArg(TString fullArg, bool &arg) {
     TString tmp = fullArg(fullArg.Index("=")+1, fullArg.Length());
     tmp.ToUpper();

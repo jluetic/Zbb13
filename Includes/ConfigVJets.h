@@ -12,6 +12,7 @@
 #include "stdlib.h"
 #include "TObject.h"
 #include "TString.h"
+#include "lepSel.h"
 #include <sstream>
 
 class ConfigVJets{
@@ -97,6 +98,8 @@ public:
     void convert(const std::string& str, Long64_t& x) const;
 
     void convert(const std::string& str, std::string&  x) const;  
+
+    void convert(const std::string& str, selection& x) const;  
 
     template<typename T>
     void convert(const std::string& str, std::vector<T>& x) const;

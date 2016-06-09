@@ -2,6 +2,7 @@
 #include <iostream>
 #include <thread>
 #include <TString.h>
+#include "lepSel.h"
 #include "ArgParser.h"
 #include "ConfigVJets.h"
 #include "ZJets_newformat.h"
@@ -17,10 +18,13 @@ int main(int argc, char **argv)
     // doWhat = "DATA", "BACKGROUND", "TAU", "DYJETS", 
     //          "WJETS", "ALL", "PDF", "SHERPA"
 
+
+
     TString dataBonzaiDir  = cfg.getS("dataBonzaiDir");
     TString mcBonzaiDir  = cfg.getS("mcBonzaiDir");
     TString histoDir   = cfg.getS("histoDir", "HistoFiles");
-    TString lepSel     = cfg.getS("lepSel", "DMu");
+    TString lepSel_str   = cfg.getS("lepSel", "DMu");
+    selection lepSel   = getLepSel(cfg.getS("lepSel", "DMu"));
     TString doWhat     = cfg.getS("doWhat", "DYJETS");
     int lepPtMin       = cfg.getI("lepPtMin", 20);
     int lepEtaMax      = cfg.getI("lepEtaMax", 24);
@@ -164,7 +168,6 @@ int main(int argc, char **argv)
             }
         }
     }
-
     if (maxEvents > 0) {
         histoDir.Remove(TString::kTrailing, '/');
         histoDir += TString::Format("_%devts/", maxEvents);
@@ -207,7 +210,7 @@ int main(int argc, char **argv)
 	} else{
 	    TString fullPath;
 	    lumi = 0;
-	    ZJets::canonizeInputFilePath(dataBonzaiDir, TString::Format(input, lepSel.Data()),
+	    ZJets::canonizeInputFilePath(dataBonzaiDir, TString::Format(input, getLepSel_string(lepSel).Data()),
 					 &fullPath);
 	    ZJets::readCatalog(fullPath, dataBonzaiDir, 0, &lumi);
 	    if(lumi > 0){
@@ -256,6 +259,7 @@ int main(int argc, char **argv)
 		if (doWhat != "DYJETS" && doWhat != "ALL") continue;
 		if(iSyst >= NSystMCSignal) continue;				
 	    } else if(iSample < DYJETS){ //background MC
+	    //} else if(iSample == "TTbar"){ //background MC
 		//cout << " U RUNNU SMO111 " << hasGenInfo << endl;
 		hasRecoInfo = true;
 		hasGenInfo   = true;
@@ -280,7 +284,7 @@ int main(int argc, char **argv)
 	    if(Samples[iSample].merge == '='){//sample is a merge of previous one
 		const TString mergedFile = ZJets::CreateOutputFileName(pdfSet, pdfMember, muR, muF,
 								       nJobs > 1 ? jobNum : -1,
-								       lepSel, Samples[iSample].name,
+								       getLepSel_string(lepSel), Samples[iSample].name,
 								       trigCorr, syst[iSyst], systDir[iSyst],
 								       jetPtMin, jetEtaMax = 24, histoDir);
 		std::cout << "Merging files ";
@@ -294,13 +298,17 @@ int main(int argc, char **argv)
 		continue;
 	    } //.merge == '='
 	    TString input = cfg.getS(TString::Format("sample_%s", Samples[iSample].name.Data()));
+ //>>> THIS LINES BELOW ARE USED TO RUN ON A SINGLE SAMPLE >>>     
+	    //if (Samples[iSample].name != TString("ST_s") || Samples[iSample].name != TString("ST_t") || Samples[iSample].name != TString("STbar_tW") || Samples[iSample].name != TString("ST_tW") ) continue;
+	    //if (Samples[iSample].name != TString("ST_s") && Samples[iSample].name != TString("ST_t") && Samples[iSample].name != TString("STbar_tW") && Samples[iSample].name != TString("ST_tW") ) continue;
+
 	    if(input.Length()==0){
 		std::cerr << "Error: input file or catalog of sample " << Samples[iSample].name
 			  << " needs to be defined in configuration file with sample_Data parameter.";
 		return 1;
 	    }
 
-	    ZJets ana(lepSel, Samples[iSample].name, TString::Format(input, lepSel.Data()), lumi,  trigCorr,
+	    ZJets ana(lepSel, Samples[iSample].name, TString::Format(input, getLepSel_string(lepSel).Data()), lumi,  trigCorr,
 		      syst[iSyst], systDir[iSyst], Samples[iSample].xsecError,
 		      lepPtMin, lepEtaMax, jetPtMin, jetEtaMax,
 		      maxEvents, histoDir, bonzaiDir, maxFiles);

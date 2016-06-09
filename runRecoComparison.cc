@@ -87,7 +87,7 @@ int main(int argc, char **argv)
     //getStatistics(lepSel, jetPtMin, jetEtaMax, "FirstJetPt_Zinc1jet");
     //getStatistics(lepSel, jetPtMin, jetEtaMax, "SecondJetPt_Zinc2jet");
     //getStatistics(lepSel, jetPtMin, jetEtaMax, "ThirdJetPt_Zinc3jet");
-    getStatistics(lepSel, jetPtMin, jetEtaMax, "ZptBJets_Zinc2B");
+    getStatistics(lepSel, jetPtMin, jetEtaMax, "ZptBJets_Zinc2B", false);
     
     //getStatistics("Electrons", 30);
     //getStatistics("Muons", 30);

@@ -675,7 +675,7 @@ void getResps(RooUnfoldResponse *responses[], TH1D *hRecDYJets[13], TH1D *hGenDY
 }
 
 
-void getStatistics(TString lepSel, int jetPtMin, int jetEtaMax, const TString& variable)
+void getStatistics(TString lepSel, int jetPtMin, int jetEtaMax, const TString& variable, bool isB)
 {
     TString energy = getEnergy();
 
@@ -693,6 +693,7 @@ void getStatistics(TString lepSel, int jetPtMin, int jetEtaMax, const TString& v
 
     TString histoDir = cfg.getS("histoDir");
 
+
     for (int i(0); i < usedFiles; i++) {
         TFile *fData;
         int sel = FilesDYJets[i];
@@ -709,7 +710,12 @@ void getStatistics(TString lepSel, int jetPtMin, int jetEtaMax, const TString& v
             if ( i > 0 ) DataEv[usedFiles][j]+=int(binContent);
 	  }
 	}
-        // close all input root files
+    if(i==usedFiles-1 && isB){
+        std::cout << "bla" << std::endl;
+    
+    } 
+ 
+       // close all input root files
         fData->Close();
     }
 

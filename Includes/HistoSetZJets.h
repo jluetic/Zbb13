@@ -187,6 +187,13 @@ class HistoSetZJets {
         TH1D *SpTLeptons_Zinc2jet;
         TH1D *genSpTLeptons_Zinc2jet;
 
+        TH1D *lepPt_Zinc1jet;
+	TH1D *lepEta_Zinc1jet;
+	TH1D *dPhiLeptons_Zinc1jet;
+	TH1D *dRLeptons_Zinc1jet;
+	TH1D *dEtaLeptons_Zinc1jet;
+	TH1D *ZMass_Zinc1jet;
+
         TH1D *JetsHT_Zinc1jet;
         TH1D *JetsHT_2_Zinc1jet;
         TH1D *JetsHT_Zinc2jet;
@@ -267,7 +274,15 @@ class HistoSetZJets {
 	TH1D *CSV;
 	TH1D *bJetCSV;
 	TH1D *allJetCSV;
-	
+// angular properties of boson and b-jet, between b-jets	
+	TH1D *mindRFirstBJetToZ_Zexc1Bjet;
+	TH1D *mindRFirstBJetToZ_Zexc2Bjet;
+	TH1D *mindRFirstBJetToZ_Zinc1Bjet;
+	TH1D *mindRFirstBJetToZ_Zinc2Bjet;
+	TH1D *mindRBJets_Zinc2Bjet;
+	TH1D *mindRBJets_Zexcc2Bjet;
+
+// quark type properties
 	TH1D *ZNGoodBJets_Zexc_l;
         TH1D *ZNGoodBJets_Zinc_l;
         TH1D *ZptBJets_Zexc1Bjet_l;

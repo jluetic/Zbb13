@@ -150,7 +150,7 @@ void RecoComparison(bool doPASPlots, TString lepSel, TString histoDir, TString r
         //--- skip histogram if it is gen or has no entry or is not a TH1 ---
         if (hName.EndsWith("_b")){
             //--- store the histograme name  and title ---
-            cout << "B  names: " << hName << endl;
+            //cout << "B  names: " << hName << endl;
             vhNames_b.push_back(hName);
             vhTitles_b.push_back(hTitle);}
     } 

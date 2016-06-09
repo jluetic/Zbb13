@@ -30,7 +30,6 @@ using namespace std;
 void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
 		 TString pdfSet, int pdfMember, double muR, double muF, double yieldScale)
 {
-    cout << " We plan to start " << endl;
     //--- Random generator necessary for BTagging ---
     TRandom3* RandGen = new TRandom3();
     //TRandom* RandGen = new TRandom();
@@ -40,7 +39,6 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
     rmcor = new rochcor2015();
     //--- Initialize PDF from LHAPDF if needed ---
     if (pdfSet != "") initLHAPDF(pdfSet, pdfMember);
-    cout<<" STARTING TO ANALYSE" << endl;
     //--------------------------------------------
 
     //--- Counters to check the yields ---
@@ -76,8 +74,8 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
     // additional variables
     double ZptRange[6] = {0, 40, 80, 120, 160, 1000};
     int LeptonID(11);
-    if (lepSel == "DMu" || lepSel == "SMu") LeptonID = 13;
-
+    if (lepSel == DMu || lepSel == SMu) LeptonID = 13;
+    else if ( lepSel == EMu ) LeptonID = 13 ;
     muIso_ = cfg.getD("muRelIso");
     eIso_ = cfg.getD("elRelIso");
     bool pogSF = cfg.getD("pogSF", true);
@@ -95,29 +93,33 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
     //====================================//
     //table TableJESunc("EfficiencyTables/JESUnce_FT_53_V21_AN4_Uncertainty_AK5PFchs.txt");
     table TableJESunc("EfficiencyTables/JECUncertainty_Summer15_25nsV5_Data_AK4PF.txt");
-    table LeptIso, LeptID, LeptIdIso, LeptTrig, Ele_Rec;
+    table LeptIso, LeptId, LeptIdIso, LeptTrig, Ele_Rec;
     // electron SF
-    table Ele_Rec_8TeV("EfficiencyTables/Ele_SF_Reconstruction_2012.txt");
-    table SC_Ele_2012EA("EfficiencyTables/Ele_SF_EA2012.txt");
+    //table Ele_Rec_8TeV("EfficiencyTables/Ele_SF_Reconstruction_2012.txt");
+    //table SC_Ele_2012EA("EfficiencyTables/Ele_SF_EA2012.txt");
     // muon SF
-    table TrigMu17Mu8SF("EfficiencyTables/Efficiency_SF_Mu17Mu8.txt");
-    table SC_RunABCD_TightID("EfficiencyTables/Muon_IDTight_Efficiencies_Run_2012ABCD_53X_Eta_Pt.txt");
-    table SC_RunABCD_LooseIso("EfficiencyTables/Muon_ISOLoose_forTight_Efficiencies_Run_2012ABCD_53X_Eta_Pt.txt");
+    //table TrigMu17Mu8SF("EfficiencyTables/Efficiency_SF_Mu17Mu8.txt");
+
+    //table TrigMu17SF("EfficiencyTables/Efficiency_SF_Mu17Mu8_emu.txt");
+    table TrigMu20SF("EfficiencyTables/Efficiency_SF_Mu20.txt");
+    table LeptIdEl("EfficiencyTables/electron_new_total.txt");
+
     // new for 13 TeV SF for Id+Iso
     table Iso_TightID13TeV("EfficiencyTables/ratios.txt"); 
-    table TrigIsoMu24SF("EfficiencyTables/Efficiency_SF_IsoMu24_eta2p1.txt");
+    //table TrigIsoMu24SF("EfficiencyTables/Efficiency_SF_IsoMu24_eta2p1.txt");
     // 76X
     table Tight_MuID_76X("EfficiencyTables/2015/MuID_Tight_2015_76X.txt");
     table Tight_MuIso_76X("EfficiencyTables/2015/MuIso_Loose_2015_76X.txt");
     table TrigMu17Mu8SF_76X("EfficiencyTables/2015/DMu_Trig_76X.txt");
 
-    LeptID = Tight_MuID_76X;
+    LeptId = Tight_MuID_76X;
     LeptIso = Tight_MuIso_76X;
     LeptIdIso = Iso_TightID13TeV;
     LeptTrig = TrigMu17Mu8SF_76X;
-    Ele_Rec = Ele_Rec_8TeV;
-    if (lepSel == "DE" || lepSel == "SE") LeptID = SC_Ele_2012EA;
-    else if (lepSel == "SMu") LeptTrig = TrigIsoMu24SF;
+    //Ele_Rec = Ele_Rec_8TeV;
+    //if (lepSel == DE || lepSel == SE) LeptId = SC_Ele_2012EA;
+    //else if (lepSel == SMu) LeptTrig = TrigIsoMu24SF;
+    if (lepSel == EMu) LeptTrig = TrigMu20SF;
     //==========================================================================================================//
   
 
@@ -125,7 +127,7 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
     //==========================================================================================================//
     //     Systematics: jec, pu, xsec     //
     //====================================//
-    cout << "Lepton Flavor: " << lepSel << "  systematics: " << systematics << "  direction: " << direction << endl;
+    cout << "Lepton Flavor: " << getLepSel_string(lepSel) << "  systematics: " << systematics << "  direction: " << direction << endl;
 
   /*  standalone_LumiReWeighting puWeight(lepSel, 2013);
     if (systematics == 1) puWeight = standalone_LumiReWeighting(lepSel, 2013, direction);
@@ -206,17 +208,18 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
     Long64_t entry_start = 0;
     Long64_t entry_stop = nentries;
     if(nJobs > 1){
-	Long64_t eventsPerJob = nentries / nJobs;
-	entry_start = eventsPerJob * (jobNum - 1);
-	if(jobNum < nJobs)  entry_stop = entry_start + eventsPerJob;
-	else entry_stop = nentries;
+		Long64_t eventsPerJob = nentries / nJobs;
+		entry_start = eventsPerJob * (jobNum - 1);
+		if(jobNum < nJobs)  entry_stop = entry_start + eventsPerJob;
+		else entry_stop = nentries;
     }
 
     int nEventsToProcess = entry_stop - entry_start;
     //cout << "We will run on " << nEventsToProcess << " start event "<< entry_start << "  end events" << entry_stop << endl;
 
     if(nMaxEvents >= 0 && nEventsToProcess > nMaxEvents) nEventsToProcess = nMaxEvents;
-    cout << "We will run on " << nEventsToProcess << " start event "<< entry_start << "  end events" << entry_stop << endl;
+    cout << "We will run on " << nEventsToProcess << " events" <<   endl;
+
     
     //store integrated luminosity in Lumi histogram:
     Lumi->SetBit(TH1::kIsAverage); //to prevent hadd to sum-up the numbers
@@ -224,7 +227,6 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
 
     processedEventMcWeightSum_ = 0.;
     nEvents = 0 ;
-//    nEvents = nEventsToProcess;
 
     double weightSum = 0;
     double genWeightSum = 0;
@@ -232,30 +234,25 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
     if(!GLepBarePrompt){
 	std::cout << "Warning: tau gen veto was not found in the ntuple. It is fine if the samples is not DY or if it does not contains Z->\\tau\\tau.\n" ;
     }
-//    cout << " AAAAA " << endl ; 
-//    cout << " AAAAA " << nEvents << "   " << entry_start << "   " << entry_stop <<  endl ; 
-//    cout << " before going to events " <<"  max events" << nMaxEvents << endl ; 
     if ( nMaxEvents > 0 ) entry_stop = entry_start + nMaxEvents ;
+
+
     //======================================================================
     // Event loop starts here
     //======================================================================
     for (Long64_t jentry = entry_start; jentry < entry_stop; jentry += 1) {
-	 if (0 <= nMaxEvents && nMaxEvents  <= nEvents) break;
-	
+	if (0 <= nMaxEvents && nMaxEvents  <= nEvents) break;
+
 	Long64_t ientry = LoadTree(jentry);
-	 if (DEBUG) cout << "Stop after line " << __LINE__ << " LLLLLLLL" << endl;
-        if (ientry < 0) break;
-	 if (DEBUG) cout << "Stop after line " << __LINE__ << " LLLLLLLL" << endl;
-        if (DEBUG) cout << "---------------------------------------------------------------------  " << nEvents << endl;
+	if (ientry < 0) break;
 	
 	if(nEvents == mess_every_n) gettimeofday(&t0, 0);
-        if (nEvents % mess_every_n == 0 && nEvents > mess_every_n){
+    if (nEvents % mess_every_n == 0 && nEvents > mess_every_n){
             timeval t1;
             gettimeofday(&t1, 0);
-            double rate = ((t1.tv_sec - t0.tv_sec) + 1.e-6*(t1.tv_usec - t0.tv_usec)) 
-		/ (nEvents - mess_every_n);
+            double rate = ((t1.tv_sec - t0.tv_sec) + 1.e-6*(t1.tv_usec - t0.tv_usec)) / (nEvents - mess_every_n);
 	    if(fabs(rate / prev_rate - 1.) > 0.1){
-		prev_rate = 0.5*(prev_rate + rate);
+			prev_rate = 0.5*(prev_rate + rate);
 	    }
             double rem = prev_rate * (nEventsToProcess - nEvents);
             int rem_s = int(rem + 0.5);
@@ -272,91 +269,54 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
 		 << std::setw(2) << rem_s << " s"
 		 << std::flush;
         }
-	if ( DEBUG ) cout << " BBBBBBBBBBBBBBBBBB " << nEvents << " Ev to process " << nEventsToProcess<< endl;
-        if(fChain->GetEntry(jentry) == 0){
-	cout << " BBBBBBBBBBBBBBBBBB " << nEvents << " Ev to process " << nEventsToProcess<< endl;
-	    std::cerr << "Failed to read Tree entry " << jentry << "!\n";
-	    continue;
-	}
-	if ( DEBUG )cout << " MAJKE MU " << yieldScale <<"  LUMI " << lumi_ << " xsec "<< xsec_ << " xsecFactor_ " << xsecFactor_<<"  skimAccep_[0] " << skimAccep_[0] << endl;
-	if(nEvents == 0 && !EvtIsRealData){
-	//    xsec_ = 1. ;
-	    cout << " TESTING: yieldScale " << yieldScale <<"lumi  " << lumi_ << "  xsec " << xsec_ << " xsecFactor_ " << " skimAccep_ " << skimAccep_[0] << endl;
-	    norm_ = yieldScale * lumi_ * xsec_ * xsecFactor_ * skimAccep_[0];
-	    if(norm_ == 0){
-		std::cerr << "Error: normalization factor for sample " << fileName
-			  << " is null! Abort." << std::endl;
-		abort();
-	    }
-	}
-	
-        //=======================================================================================================//
-        //         Continue Statements        //
-        //====================================//
-        //if (nEvents % 2 == 0) continue;
-        //if (EvtVtxCnt <= 14) continue;
+		if(fChain->GetEntry(jentry) == 0){
+			std::cerr << "Failed to read Tree entry " << jentry << "!\n";
+			continue;
+		}
+		if(!EvtIsRealData){
+		  //  xsec_ = 1. ;
+			if ( DEBUG ) cout << " TESTING: yieldScale " << yieldScale <<"lumi  " << lumi_ << "  xsec " << xsec_ << " xsecFactor_ " << " skimAccep_ " << skimAccep_[0] << endl;
+			norm_ = yieldScale * lumi_ * xsec_ * xsecFactor_ * skimAccep_[0];
+			if(norm_ == 0){
+			std::cerr << "Error: normalization factor for sample " << fileName
+				  << " is null! Abort." << std::endl;
+			abort();
+			}
+		}
 
-        //=======================================================================================================//
-
-	if ( DEBUG ) cout << " BBBBBBBBBBBBBBBBBB " << nEvents << endl;
-	nEvents++;
-	if ( DEBUG ) cout << " CCCCCCCCCCCCCCCCCC " << endl;
-
+		nEvents++;
 
         if (DEBUG) cout << "Stop after line " << __LINE__ << endl;
         //=======================================================================================================//
         //         Computing weight            //
         //====================================//
         double weight = norm_;
-	double weightBJets = norm_; 
-	//	std::cout << "---> " <<  nEvents << "\n";
-/*//CAG
+		double weightBJets = norm_;
+		/*	if (hasRecoInfo && !EvtIsRealData) {
+				//cout << "PU weight: " << EvtPuCntTruth << " , " << puWeight.weight(EvtPuCntTruth) << "\n";
+				weight *= puWeight.weight(EvtPuCntTruth);
+			}
+		*/
         if(addPuWeights){
             double add_w_ = addPuWeights->GetBinContent(addPuWeights->GetXaxis()->FindBin(EvtVtxCnt));
             if(add_w_ > 0) weight *= add_w_;
         }
-*/
 
         if (fileName.Index("DYJets") >= 0 && fileName.Index("MIX") >= 0 && GNup > 5) weight *= mixingWeightsDY[GNup - 6]; 
         if (fileName.Index("SMu_8TeV_WJets") >= 0 && fileName.Index("MIX") >= 0 && GNup > 5) weight *= mixingWeightsWJ_SMu[GNup - 6]; 
-       // if (fileName.Index("Sherpa") >= 0 && fileName.Index("UNFOLDING") >= 0) {
-       //     weight *= mcSherpaWeights_->at(0) / 43597515.;
-       // }
+       	// if (fileName.Index("Sherpa") >= 0 && fileName.Index("UNFOLDING") >= 0) {
+       	//     weight *= mcSherpaWeights_->at(0) / 43597515.;
+       	// }
 
-	if(!EvtIsRealData){
-	    if(EvtWeights->size() > 0){
-		weight *= (*EvtWeights)[0];
-		processedEventMcWeightSum_ += (*EvtWeights)[0];
-	    } else{
-		processedEventMcWeightSum_ += 1.;
-	    }
-	}
+		if(!EvtIsRealData){
+			if(EvtWeights->size() > 0){
+			weight *= (*EvtWeights)[0];
+			processedEventMcWeightSum_ += (*EvtWeights)[0];
+			} else{
+			processedEventMcWeightSum_ += 1.;
+			}
+		}
 	
-//        }
-//	
-//        if (fileName.Index("mcatnlo") >= 0) {
-//            weight *= EvtWeights->at(0);
-//         //  cout << EvtWeights->at(0) << "  , " << EvtWeights->at(0) << "\n";
-//
-//            //if (muR == 0.0 && muF == 0.0 && pdfMember == -1) weight *= EvtWeights->at(0);
-//            //if (muR == 1.0 && muF == 1.0 && pdfMember == -1) weight *= EvtWeights->at(0);
-//            // CommentAG: only at(0) available for EvtWeights
-//         /*
-//            if (muR == 1.0 && muF == 2.0 && pdfMember == -1) weight *= EvtWeights->at(2);
-//            if (muR == 1.0 && muF == 0.5 && pdfMember == -1) weight *= EvtWeights->at(3);
-//            if (muR == 2.0 && muF == 1.0 && pdfMember == -1) weight *= EvtWeights->at(4);
-//            if (muR == 2.0 && muF == 2.0 && pdfMember == -1) weight *= EvtWeights->at(5);
-//            if (muR == 2.0 && muF == 0.5 && pdfMember == -1) weight *= EvtWeights->at(6);
-//            if (muR == 0.5 && muF == 1.0 && pdfMember == -1) weight *= EvtWeights->at(7);
-//            if (muR == 0.5 && muF == 2.0 && pdfMember == -1) weight *= EvtWeights->at(8);
-//            if (muR == 0.5 && muF == 0.5 && pdfMember == -1) weight *= EvtWeights->at(9);
-//            if (muR == 0.0 && muF == 0.0 && pdfMember != -1) weight *= EvtWeights->at(pdfMember+10);
-//            weight_amcNLO_sum += EvtWeights->at(1);
-//	 */
-//            weight_amcNLO_sum += EvtWeights->at(0); 
-//        }
-
-       // cout << weight << "\n";
         //==========================================================================================================//
         // Compute the weight for PDF syst    //
         //===================================//
@@ -366,25 +326,26 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
 
         //--- There is no pile-up so no need to reweight for that ---
         double genWeight = weight * wPdf;
-	genWeightSum += genWeight;
+		genWeightSum += genWeight;
         //=======================================================================================================//
 
 
         if (DEBUG) cout << "Stop after line " << __LINE__ << endl;
 
-	//Trigger
-	bool passesTrigger = ((*ourTrig_) & triggerMask_);
-
-	if(passesTrigger){
-	    nEventsPassingTrigger++;
-	    nEffEventsPassingTrigger += weight;
-	}
+		//Trigger
+		bool passesTrigger = ((*ourTrig_) & triggerMask_);
+	 	if (DEBUG) cout << "Stop after line " << __LINE__ << endl;
+	 	if(passesTrigger){
+	    	nEventsPassingTrigger++;
+	    	nEffEventsPassingTrigger += weight;
+		}
 	
+	 	if (DEBUG) cout << "Stop after line " << __LINE__ << endl;
         //=======================================================================================================//
         //         Retrieving leptons          //
         //====================================//
         bool passesLeptonCut(0), passesLeptonChargeCut(0), passesTauCut(1);
-	//bool passesLeptonMassCut(0);
+		//bool passesLeptonMassCut(0);
         unsigned short nLeptons(0), nVetoMuons(0), nVetoElectrons(0);
         vector<leptonStruct> leptons;
         vector<leptonStruct> vetoMuons;
@@ -393,29 +354,35 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
         double MT = -99;
         TLorentzVector EWKBoson;
 
+	 if (DEBUG) cout << "Stop after line " << __LINE__ << endl;
         if (hasRecoInfo) {
             //--- get Muons ---
-            if (lepSel == "DMu" || lepSel == "SMu") {
+            if (lepSel == DMu || lepSel == SMu ) {
                 getMuons(leptons, vetoMuons);
+	 			if (DEBUG) cout << "Stop after line " << __LINE__ << endl;
 
             }
             //--- get Electrons ---
-            if (lepSel == "DE" || lepSel == "SE") {
+            if (lepSel == DE || lepSel == SE) {
                 getElectrons(leptons, vetoElectrons);
+	 			if (DEBUG) cout << "Stop after line " << __LINE__ << endl;
             }
             //--- get E-Muons ---
-            if (lepSel == "EMu") {
-               // cout << MuEta->size() << "\n";
-                getEMuons(leptons, vetoMuons);
-
+            if (lepSel == EMu) {
+				getElectrons(leptons, vetoMuons);
+				if (leptons.size()>0){
+					getMuons(leptons, vetoMuons);
+				}
+				else
+					continue;
             }
 
-            //--- get MET --- 
-           // if (lepSel == "SMu" || lepSel == "SE") {
-                int whichMET(0); //0 - slimmedMETs  1- slimmedMETsNoHF 2- slimmedMETsPuppi
-                MET.SetXYZM(METPx->at(whichMET), METPy->at(whichMET), 0, 0);
-            //}
 
+            //--- get MET --- 
+            int whichMET(0); //0 - slimmedMETs  1- slimmedMETsNoHF 2- slimmedMETsPuppi
+            MET.SetXYZM(METPx->at(whichMET), METPy->at(whichMET), 0, 0);
+
+	 		if (DEBUG) cout << "Stop after line " << __LINE__ << endl;
             //--- get the size of the collections ---
             nLeptons = leptons.size();
             nVetoMuons = vetoMuons.size();
@@ -424,18 +391,20 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
             //--- sort leptons by descending pt ---
             sort(leptons.begin(), leptons.end(), LepDescendingOrder);
             sort(vetoMuons.begin(), vetoMuons.end(), LepDescendingOrder);
-
             sort(vetoElectrons.begin(), vetoElectrons.end(), LepDescendingOrder);
 
-            if ((lepSel == "DMu" || lepSel == "DE") && nLeptons >= 2) {
+			if (nLeptons>=2 && lepSel == EMu && ((leptons[0].lepID == 11 && leptons[1].lepID == 13)||(leptons[0].lepID == 13 && leptons[1].lepID == 11))); 
+			else continue;
+
+            if ((lepSel == DMu || lepSel == DE || lepSel == EMu) && nLeptons >= 2) {
                 // --- lepton energy scale and resolution variation ---
-                if(lepSel == "DMu"){
+                if(lepSel == DMu){
                     // --- muon energy scale variation ---
                     leptons[0].v.SetPtEtaPhiE(leptons[0].v.Pt() * (1 + lepscale*0.002), leptons[0].v.Eta(), leptons[0].v.Phi(), leptons[0].v.E() * (1 + lepscale*0.002));
                     leptons[1].v.SetPtEtaPhiE(leptons[1].v.Pt() * (1 + lepscale*0.002), leptons[1].v.Eta(), leptons[1].v.Phi(), leptons[1].v.E() * (1 + lepscale*0.002));
 
                 }
-                else if(lepSel == "DE")
+                else if(lepSel == DE)
                 {
                     // --- electron energy scale variation ---
                     if(fabs(leptons[0].v.Eta())<1.479){
@@ -453,111 +422,115 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
                     }
                 }
 
-                else if(lepSel == "EMu")
+                else if(lepSel == EMu)
                 {
-             	cout << " What you added no code in this EMu part" << endl; 
-                     // for systematics: calculate electron and muon energy scale variation 
 
-                }
-
+					if (leptons[0].lepID==13){     
+						// for systematics: calculate electron and muon energy scale variation 
+						leptons[0].v.SetPtEtaPhiE(leptons[0].v.Pt() * (1 + lepscale*0.002), leptons[0].v.Eta(), leptons[0].v.Phi(), leptons[0].v.E() * (1 + lepscale*0.002));
+						/// electron energy scale variation
+						if(fabs(leptons[1].v.Eta())<1.479){
+								leptons[1].v.SetPtEtaPhiE(leptons[1].v.Pt() * (1 + lepscale * 0.006), leptons[1].v.Eta(), leptons[1].v.Phi(), leptons[1].v.E() * (1 + lepscale * 0.006));
+							}
+						 else{
+								leptons[1].v.SetPtEtaPhiE(leptons[1].v.Pt() * (1 + lepscale * 0.015), leptons[1].v.Eta(),leptons[1].v.Phi(), leptons[1].v.E() * (1 + lepscale * 0.015));
+							}
+					}
+					else{
+						// for systematics: calculate electron and muon energy scale variation 
+						leptons[1].v.SetPtEtaPhiE(leptons[1].v.Pt() * (1 + lepscale*0.002), leptons[1].v.Eta(), leptons[1].v.Phi(), leptons[1].v.E() * (1 + lepscale*0.002));
+						/// electron energy scale variation
+						if(fabs(leptons[0].v.Eta())<1.479){
+								leptons[0].v.SetPtEtaPhiE(leptons[0].v.Pt() * (1 + lepscale * 0.006), leptons[0].v.Eta(), leptons[0].v.Phi(), leptons[0].v.E() * (1 + lepscale * 0.006));
+							}
+						 else{
+								leptons[0].v.SetPtEtaPhiE(leptons[0].v.Pt() * (1 + lepscale * 0.015), leptons[0].v.Eta(),leptons[0].v.Phi(), leptons[0].v.E() * (1 + lepscale * 0.015));
+							}
+					}
+				}//EMu
                 nEventsWithTwoGoodLeptons++;
                 nEffEventsWithTwoGoodLeptons += weight;
-    
+			 
+			//  if(!hasGenInfo){   // CommentAG: comment this out since don't enter 'lepton energy smearing' block
+			// build Electroweak boson candidate: here it is expected to be a Z
 
                 if (!EvtIsRealData) {
                     double effWeight = 1.;
-                    if (lepSel == "DMu") {
-			if(pogSF){
-			    effWeight *= LeptID.getEfficiency(leptons[0].v.Pt(), fabs(leptons[0].v.Eta()));
-			    effWeight *= LeptID.getEfficiency(leptons[1].v.Pt(), fabs(leptons[1].v.Eta()));
-			    effWeight *= LeptIso.getEfficiency(leptons[0].v.Pt(), fabs(leptons[0].v.Eta()));
-			    effWeight *= LeptIso.getEfficiency(leptons[1].v.Pt(), fabs(leptons[1].v.Eta()));
-			   // effWeight *= LeptIso.getEfficiency(leptons[0].v.Pt(), fabs(leptons[0].v.Eta()));
-			   // effWeight *= LeptIso.getEfficiency(leptons[1].v.Pt(), fabs(leptons[1].v.Eta()));
-			} else{
-			    effWeight *= LeptIdIso.getEfficiency(leptons[0].v.Pt(), fabs(leptons[0].v.Eta()));
-			}
-                        if (useTriggerCorrection) effWeight *= LeptTrig.getEfficiency(fabs(leptons[0].v.Eta()), fabs(leptons[1].v.Eta()));
+                    if (lepSel == DMu) {
+						if(pogSF){
+							effWeight *= LeptId.getEfficiency(leptons[0].v.Pt(), fabs(leptons[0].v.Eta()));
+							effWeight *= LeptId.getEfficiency(leptons[1].v.Pt(), fabs(leptons[1].v.Eta()));
+							effWeight *= LeptIso.getEfficiency(leptons[0].v.Pt(), fabs(leptons[0].v.Eta()));
+							effWeight *= LeptIso.getEfficiency(leptons[1].v.Pt(), fabs(leptons[1].v.Eta()));
+						   // effWeight *= LeptIso.getEfficiency(leptons[0].v.Pt(), fabs(leptons[0].v.Eta()));
+						   // effWeight *= LeptIso.getEfficiency(leptons[1].v.Pt(), fabs(leptons[1].v.Eta()));
+						} else{
+							effWeight *= LeptIdIso.getEfficiency(leptons[0].v.Pt(), fabs(leptons[0].v.Eta()));
+						}
+						if (useTriggerCorrection) effWeight *= LeptTrig.getEfficiency(fabs(leptons[0].v.Eta()), fabs(leptons[1].v.Eta()));
                     }
                     //else if (lepSel == "DE") {
                     //    effWeight *= Ele_Rec.getEfficiency(leptons[0].v.Pt(), fabs(leptons[0].scEta));
                     //    effWeight *= Ele_Rec.getEfficiency(leptons[1].v.Pt(), fabs(leptons[1].scEta));
-                    //    effWeight *= LeptID.getEfficiency(leptons[0].v.Pt(), fabs(leptons[0].scEta));
-                    //    effWeight *= LeptID.getEfficiency(leptons[1].v.Pt(), fabs(leptons[1].scEta)); 
+                    //    effWeight *= LeptId.getEfficiency(leptons[0].v.Pt(), fabs(leptons[0].scEta));
+                    //    effWeight *= LeptId.getEfficiency(leptons[1].v.Pt(), fabs(leptons[1].scEta)); 
                     //}
 
-                    else if (lepSel == "EMu") {
-                     // leptons[0].isMuonLep == 1  muons
+                    else if (lepSel == EMu) {
                        // write here the effWeight for EMu sample
                          if(leptons[0].lepID == 13){  // if muon apply muon's is and ISO sf
-                            effWeight *= LeptID.getEfficiency(leptons[0].v.Pt(), fabs(leptons[0].v.Eta()));
-                    //        effWeight *= LeptIso.getEfficiency(leptons[0].v.Pt(), fabs(leptons[0].v.Eta()));
-                            effWeight *= LeptID.getEfficiency(leptons[1].v.Pt(), fabs(leptons[1].v.Eta()));  // for electrons only Id is available
+                            effWeight *= LeptId.getEfficiency(leptons[0].v.Pt(), fabs(leptons[0].v.Eta()));
+                            effWeight *= LeptIso.getEfficiency(leptons[0].v.Pt(), fabs(leptons[0].v.Eta()));
+                            effWeight *= LeptIdEl.getEfficiency(leptons[1].v.Pt(), fabs(leptons[1].v.Eta()));  // for electrons only Id is available
                          }
                          else{
-                           effWeight *= LeptID.getEfficiency(leptons[0].v.Pt(), fabs(leptons[0].v.Eta()));
-                           effWeight *= LeptID.getEfficiency(leptons[1].v.Pt(), fabs(leptons[1].v.Eta()));
-                           //effWeight *= LeptIso.getEfficiency(leptons[1].v.Pt(), fabs(leptons[1].v.Eta()));
+                           effWeight *= LeptIdEl.getEfficiency(leptons[0].v.Pt(), fabs(leptons[0].v.Eta()));
+                           effWeight *= LeptId.getEfficiency(leptons[1].v.Pt(), fabs(leptons[1].v.Eta()));
+                           effWeight *= LeptIso.getEfficiency(leptons[1].v.Pt(), fabs(leptons[1].v.Eta()));
                          }
                          if (useTriggerCorrection){
-                               if(leptons[0].lepID == 1){  // [0] = muon
-                                effWeight *= LeptTrig.getEfficiency(leptons[0].v.Pt(), fabs(leptons[0].v.Eta()));
-                                // cout << leptons[0].v.Pt() << " , " << fabs(leptons[0].v.Eta()) << " , " <<  LeptTrig.getEfficiency(leptons[0].v.Pt(), fabs(leptons[0].v.Eta())) << "\n";
-                                }
-                                else{
-                                effWeight *= LeptTrig.getEfficiency(leptons[1].v.Pt(), fabs(leptons[1].v.Eta()));
-                                // cout << leptons[0].v.Pt() << " , " << fabs(leptons[0].v.Eta()) << " , " <<  LeptTrig.getEfficiency(leptons[0].v.Pt(), fabs(leptons[0].v.Eta())) << "\n";
-                                }
+							 for(auto &item:leptons){
+								 if(item.lepID==13){
+									 effWeight *= LeptTrig.getEfficiency(item.v.Pt(), fabs(item.v.Eta()));
+									 break;
+									}
+								 }
+							 }
                           
-                              /*
-                                if(leptons[0].isMuonLep == 1){  // [0] = muon
-                                   if(fabs(leptons[0].v.Eta()) > 0. && fabs(leptons[0].v.Eta()) <= 0.9 ) effWeight *= 0.9761996;
-                                   else if(fabs(leptons[0].v.Eta()) > 0.9 && fabs(leptons[0].v.Eta()) <= 1.2 ) effWeight *= 0.9690940;
-                                   else if(fabs(leptons[0].v.Eta()) > 1.2 && fabs(leptons[0].v.Eta()) <= 2.1 ) effWeight *= 0.9831242;
-                                   else if(fabs(leptons[0].v.Eta()) > 2.1 && fabs(leptons[0].v.Eta()) <= 2.4 ) effWeight *= 0.9532196;
-                                }
-                                else{
-                                   if(fabs(leptons[1].v.Eta()) > 0. && fabs(leptons[1].v.Eta()) <= 0.9 ) effWeight *= 0.9761996;
-                                   else if(fabs(leptons[1].v.Eta()) > 0.9 && fabs(leptons[1].v.Eta()) <= 1.2 ) effWeight *= 0.9690940;
-                                   else if(fabs(leptons[1].v.Eta()) > 1.2 && fabs(leptons[1].v.Eta()) <= 2.1 ) effWeight *= 0.9831242;
-                                   else if(fabs(leptons[1].v.Eta()) > 2.1 && fabs(leptons[1].v.Eta()) <= 2.4 ) effWeight *= 0.9532196;
-                                }
-                               */ 
-                         } 
-                    }
+                    } //EMu
 
                     weight *= effWeight;
-                }
+                } //isData
 
-		weightSum += weight;
+				weightSum += weight;
 
-		EWKBoson = leptons[0].v + leptons[1].v;
-		// apply trigger, charge, mass cut
-		if (passesTrigger && (leptons[0].charge * leptons[1].charge < 0)) {
-		    nEventsWithTwoGoodLeptonsWithOppCharge++;
-		    nEffEventsWithTwoGoodLeptonsWithOppCharge += weight;
-		    passesLeptonChargeCut = 1;
-		    if (EWKBoson.M() > ZMCutLow && EWKBoson.M() < ZMCutHigh 
-			&& leptons[0].v.Pt() > lepPtCutMin && leptons[1].v.Pt() > lepPtCutMin) {
-			nEventsWithTwoGoodLeptonsWithOppChargeAndGoodMass++;
-			nEffEventsWithTwoGoodLeptonsWithOppChargeAndGoodMass += weight;
-			passesLeptonCut = 1;
-			//passesLeptonMassCut = 1;
-		    }
-		}
-		if((leptons[0].charge * leptons[1].charge < 0)
-		   &&  EWKBoson.M() > ZMCutLow && EWKBoson.M() < ZMCutHigh 
-		   && leptons[0].v.Pt() > lepPtCutMin && leptons[1].v.Pt() > lepPtCutMin){
-		    ++nEventsVInc0JetsNoTrig;
-		    nEffEventsVInc0JetsNoTrig += weight;
-		}
-		//}
+				EWKBoson = leptons[0].v + leptons[1].v;
+				// apply trigger, charge, mass cut
+				if (passesTrigger && (leptons[0].charge * leptons[1].charge < 0)) {
+					nEventsWithTwoGoodLeptonsWithOppCharge++;
+					nEffEventsWithTwoGoodLeptonsWithOppCharge += weight;
+					passesLeptonChargeCut = 1;
+					if (EWKBoson.M() > ZMCutLow && EWKBoson.M() < ZMCutHigh 
+					&& leptons[0].v.Pt() > lepPtCutMin && leptons[1].v.Pt() > lepPtCutMin) {
+					nEventsWithTwoGoodLeptonsWithOppChargeAndGoodMass++;
+					nEffEventsWithTwoGoodLeptonsWithOppChargeAndGoodMass += weight;
+					passesLeptonCut = 1;
+					//passesLeptonMassCut = 1;
+					}
+				}
+				if((leptons[0].charge * leptons[1].charge < 0)
+				   &&  EWKBoson.M() > ZMCutLow && EWKBoson.M() < ZMCutHigh 
+				   && leptons[0].v.Pt() > lepPtCutMin && leptons[1].v.Pt() > lepPtCutMin){
+					++nEventsVInc0JetsNoTrig;
+					nEffEventsVInc0JetsNoTrig += weight;
+					}
+				//}
             } // end if Z study and nLeptons >= 2
 
             // determine if the event passes the leptons requirements for EWKBoson = W Boson
             // exactly one muon (or exactly one electron) must be present and no additional
             // charged leptons can be present.
-            else if ((lepSel == "SMu" || lepSel == "SE") && (nLeptons == 1 && nVetoMuons == 0 && nVetoElectrons == 0)) {
+            else if ((lepSel == SMu || lepSel == SE) && (nLeptons == 1 && nVetoMuons == 0 && nVetoElectrons == 0)) {
                 // add the MET to the leptons collection: leptons[1] = MET
                 leptons.push_back(leptonStruct(MET.Pt(), 0, MET.Phi(), MET.Pt(), 0, 0, 0, 0, 0, 0)); 
 
@@ -571,20 +544,20 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
                 // apply scale factors only on MC.
                 if (!EvtIsRealData) {
                     double effWeight = 1.;
-                    if (lepSel == "SMu") {
-			if(pogSF){
-			    effWeight *= LeptID.getEfficiency(leptons[0].v.Pt(), fabs(leptons[0].v.Eta()));
-			    effWeight *= LeptID.getEfficiency(leptons[1].v.Pt(), fabs(leptons[1].v.Eta()));
-			    //effWeight *= LeptIso.getEfficiency(leptons[0].v.Pt(), fabs(leptons[0].v.Eta()));
-			   // effWeight *= LeptIso.getEfficiency(leptons[1].v.Pt(), fabs(leptons[1].v.Eta()));
-			} else{
-			    effWeight *= LeptIdIso.getEfficiency(leptons[0].v.Pt(), fabs(leptons[0].v.Eta()));
-			}
-                        if (useTriggerCorrection) effWeight *= LeptTrig.getEfficiency(fabs(leptons[0].v.Eta()), fabs(leptons[1].v.Eta()));
+                    if (lepSel == SMu) {
+						if(pogSF){
+							effWeight *= LeptId.getEfficiency(leptons[0].v.Pt(), fabs(leptons[0].v.Eta()));
+							effWeight *= LeptId.getEfficiency(leptons[1].v.Pt(), fabs(leptons[1].v.Eta()));
+							// ZASTO ????????			    effWeight *= LeptIso.getEfficiency(leptons[0].v.Pt(), fabs(leptons[0].v.Eta()));
+							//			    effWeight *= LeptIso.getEfficiency(leptons[1].v.Pt(), fabs(leptons[1].v.Eta()));
+						} else{
+							effWeight *= LeptIdIso.getEfficiency(leptons[0].v.Pt(), fabs(leptons[0].v.Eta()));
+						}
+							if (useTriggerCorrection) effWeight *= LeptTrig.getEfficiency(fabs(leptons[0].v.Eta()), fabs(leptons[1].v.Eta()));
                     }
-                    else if (lepSel == "SE") {
+                    else if (lepSel == SE) {
                         effWeight *= Ele_Rec.getEfficiency(leptons[0].v.Pt(), fabs(leptons[0].scEta));
-                        effWeight *= LeptID.getEfficiency(leptons[0].v.Pt(), fabs(leptons[0].scEta));
+                        effWeight *= LeptId.getEfficiency(leptons[0].v.Pt(), fabs(leptons[0].scEta));
                     }
                     weight *= effWeight;
                 }
@@ -617,15 +590,15 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
             //-- retriveing generated leptons with status 1
             for (unsigned short i(0); i < nTotgenLeptons; i++) {
                 bool lepToBeConsidered(false);
-                if ((lepSel == "DMu" || lepSel == "DE") && abs(GLepBareId->at(i)) == LeptonID) lepToBeConsidered = true; 
-                else if ((lepSel == "SMu" || lepSel == "SE") && (abs(GLepBareId->at(i)) == LeptonID || abs(GLepBareId->at(i)) == 12 || abs(GLepBareId->at(i)) == 14)) lepToBeConsidered = true;
+                if ((lepSel == DMu || lepSel == DE) && abs(GLepBareId->at(i)) == LeptonID) lepToBeConsidered = true; 
+                else if ((lepSel == SMu || lepSel == SE) && (abs(GLepBareId->at(i)) == LeptonID || abs(GLepBareId->at(i)) == 12 || abs(GLepBareId->at(i)) == 14)) lepToBeConsidered = true;
                 // following two lines should give the same result
                 if (GLepBareSt->at(i) == 3 && abs(GLepBareId->at(i)) != LeptonID && (abs(GLepBareId->at(i)) == 15 || abs(GLepBareId->at(i)) == 13 || abs(GLepBareId->at(i)) == 11)) countTauS3++;
                 if (GLepBareSt->at(i) == 3 && abs(GLepBareId->at(i)) == LeptonID) countTauS3--;
 
-		bool passesTauVeto = true;
-		if(GLepBarePrompt) passesTauVeto = (*GLepBarePrompt)[i];
-		if(!passesTauVeto) continue;
+				bool passesTauVeto = true;
+				if(GLepBarePrompt) passesTauVeto = (*GLepBarePrompt)[i];
+				if(!passesTauVeto) continue;
 		
                 if (!lepToBeConsidered) continue;
 		
@@ -634,11 +607,11 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
                 else if (GLepBareId->at(i) < 0) charge = -1;
                 else charge = 1;
 
-		leptonStruct genLep(GLepBarePt->at(i), GLepBareEta->at(i), GLepBarePhi->at(i), GLepBareE->at(i), charge, 0, 0, 0, 0, 0);
+				leptonStruct genLep(GLepBarePt->at(i), GLepBareEta->at(i), GLepBarePhi->at(i), GLepBareE->at(i), charge, 0, 0, 0, 0, 0);
                 leptonStruct genLepNoFSR(GLepBarePt->at(i), GLepBareEta->at(i), GLepBarePhi->at(i), GLepBareE->at(i), charge, 0, 0, 0, 0, 0);
 
                 //-- dress the leptons with photon (cone size = 0.1). Only for status 1 leptons (after FSR)
-                if ((GLepBareSt->at(i) == 1 && lepToBeConsidered) || ((lepSel == "SMu" || lepSel == "SE") && charge == 0)) {
+                if ((GLepBareSt->at(i) == 1 && lepToBeConsidered) || ((lepSel == SMu || lepSel == SE) && charge == 0)) {
 
                     for (unsigned short j(0); j < nTotGenPhotons; j++){
                         TLorentzVector tmpGenPho;
@@ -654,7 +627,7 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
                     }   
 
                     if ((genLep.v.Pt() >= lepPtCutMin && fabs(genLep.v.Eta()) <= 0.1*lepEtaCutMax && genLep.charge != 0)  
-                           || ((lepSel == "SMu" || lepSel == "SE") && genLep.charge == 0)) {   
+                           || ((lepSel == SMu || lepSel == SE) && genLep.charge == 0)) {   
                           genLeptons.push_back(genLep);
                     }
                 }
@@ -666,7 +639,10 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
             // sort leptons by descending pt
             sort(genLeptons.begin(), genLeptons.end(), LepDescendingOrder);
 	    
-	    //assert(genLeptons.size() < 2 || genLeptons[0].v.Pt() >= genLeptons[1].v.Pt());
+			//assert(genLeptons.size() < 2 || genLeptons[0].v.Pt() >= genLeptons[1].v.Pt());
+			if(genLeptons.size() > 1 &&  genLeptons[0].v.Pt() < genLeptons[1].v.Pt()){
+			std::cerr << "Problem in Gen jet ordering!\n";
+			}
 
             if (countTauS3 == 0 && fileName.Index("UNFOLDING") >= 0 && fileName.Index("Sherpa") < 0) {
                 partonsN->Fill(GNup-5);
@@ -677,12 +653,12 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
             //    then we don't count the event at reco.
             if (countTauS3 > 0 && fileName.Index("Tau") < 0 && fileName.Index("Sherpa") < 0 && fileName.Index("MG5") < 0) {        
                 passesTauCut = 0;
-		std::cout << "Tau veto changed passesLeptonCut value!\n";
+				std::cout << "Tau veto changed passesLeptonCut value!\n";
                 passesLeptonCut = 0; 
             }
  
             //-- determine if the event passes the leptons requirements
-             if ((lepSel == "DMu" || lepSel == "DE") && ngenLeptons >= 2) {
+             if ((lepSel == DMu || lepSel == DE) && ngenLeptons >= 2) {
 
 		 ++nGenEventsWithTwoGoodLeptons;
 		 nEffGenEventsWithTwoGoodLeptons += genWeight;
@@ -704,7 +680,7 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
                 //--- if there are taus we don't want the gen level
 		 if (countTauS3 > 0 && fileName.Index("Bugra") < 0 && fileName.Index("MG5") < 0) passesgenLeptonCut = 0;
 	     }
-	     else if ((lepSel == "SMu" || lepSel == "SE") && (ngenLeptons >= 2)) {
+	     else if ((lepSel == SMu || lepSel == SE) && (ngenLeptons >= 2)) {
 
 
                 if (abs(genLeptons[0].charge) > 0 && genLeptons[1].charge == 0) {
@@ -730,64 +706,62 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
         } // end of hasGenInfo
 
 
-	//=======================================================================================================//
+		//=======================================================================================================//
         //   ------- lepton energy smearing ------
         //==========================================//
         if (hasRecoInfo && hasGenInfo){
-            if((lepSel == "DMu" || lepSel == "DE") && nLeptons >= 2 && ngenLeptons >= 2){  
-		if(smearlepton){
-		    double oldLeptonPt;
-		    double genLeptonPt;
-		    double newLeptonPt;
-		    double smearFactor;
-		    
-		    smearFactor = (lepSel == "DMu") ? 0.006 : 0.06;
-		    
-		    oldLeptonPt = leptons[0].v.Pt();
-		    genLeptonPt = genLeptons[0].v.Pt();
-		    newLeptonPt = SmearLepPt(oldLeptonPt, genLeptonPt, smearlepton, smearFactor);
-		    leptons[0].v.SetPtEtaPhiE(newLeptonPt, leptons[0].v.Eta(), leptons[0].v.Phi(), leptons[0].v.E()*newLeptonPt/oldLeptonPt);
-		    
-		    oldLeptonPt = leptons[1].v.Pt();
-		    genLeptonPt = genLeptons[1].v.Pt();
-		    newLeptonPt = SmearLepPt(oldLeptonPt,genLeptonPt,smearlepton,smearFactor);
-		    leptons[1].v.SetPtEtaPhiE(newLeptonPt, leptons[1].v.Eta(), leptons[1].v.Phi(), leptons[1].v.E()*newLeptonPt/oldLeptonPt);
-		    
-		    // build Electroweak boson candidate: here it is expected to be a Z
-		    EWKBoson = leptons[0].v + leptons[1].v;
+            if((lepSel == DMu || lepSel == DE) && nLeptons >= 2 && ngenLeptons >= 2){  
+				if(smearlepton){
+					double oldLeptonPt;
+					double genLeptonPt;
+					double newLeptonPt;
+					double smearFactor;
+					
+					smearFactor = (lepSel == DMu) ? 0.006 : 0.06;
+					
+					oldLeptonPt = leptons[0].v.Pt();
+					genLeptonPt = genLeptons[0].v.Pt();
+					newLeptonPt = SmearLepPt(oldLeptonPt, genLeptonPt, smearlepton, smearFactor);
+					leptons[0].v.SetPtEtaPhiE(newLeptonPt, leptons[0].v.Eta(), leptons[0].v.Phi(), leptons[0].v.E()*newLeptonPt/oldLeptonPt);
+					
+					oldLeptonPt = leptons[1].v.Pt();
+					genLeptonPt = genLeptons[1].v.Pt();
+					newLeptonPt = SmearLepPt(oldLeptonPt,genLeptonPt,smearlepton,smearFactor);
+					leptons[1].v.SetPtEtaPhiE(newLeptonPt, leptons[1].v.Eta(), leptons[1].v.Phi(), leptons[1].v.E()*newLeptonPt/oldLeptonPt);
+					
+					// build Electroweak boson candidate: here it is expected to be a Z
+					EWKBoson = leptons[0].v + leptons[1].v;
 
-		    // apply charge, mass cut
-		    if (passesTrigger && leptons[0].charge * leptons[1].charge < 0) {
-			passesLeptonChargeCut = 1;
-			if (EWKBoson.M() > ZMCutLow && EWKBoson.M() < ZMCutHigh && leptons[0].v.Pt() > lepPtCutMin && leptons[1].v.Pt() > lepPtCutMin) {
-			    // cout <<  "AndGoodMass" << "\n";
-			    passesLeptonCut = 1;
-			    //passesLeptonMassCut = 1;
-			} else{
-			    passesLeptonCut = 0;
-			}
-		    } // end if re-selection of leptons
-		}
+					// apply charge, mass cut
+					if (passesTrigger && leptons[0].charge * leptons[1].charge < 0) {
+						passesLeptonChargeCut = 1;
+						if (EWKBoson.M() > ZMCutLow && EWKBoson.M() < ZMCutHigh && leptons[0].v.Pt() > lepPtCutMin && leptons[1].v.Pt() > lepPtCutMin) {
+							// cout <<  "AndGoodMass" << "\n";
+							passesLeptonCut = 1;
+							//passesLeptonMassCut = 1;
+						} else{
+							passesLeptonCut = 0;
+						}
+					} // end if re-selection of leptons
+				}
             } // end if DMu/DE channel
 
         } // end of hasRecoInfo and hasGenInfo
 
-        if (DEBUG) cout << "Stop after line " << __LINE__ << endl;
         //=======================================================================================================//
         //          Retrieving jets           //
         //====================================//
         unsigned short nGoodJets(0), nGoodJets_20(0), nTotJets(0);
-	unsigned short nGoodBJets(0),nGoodBJets_b(0),nGoodBJets_c(0),nGoodBJets_l(0);
+		unsigned short nGoodBJets(0),nGoodBJets_b(0),nGoodBJets_c(0),nGoodBJets_l(0);
         bool bTagJetFound(false);
         double jetsHT(0);
         vector<jetStruct> jets;
         vector<jetStruct> jets_20; // additional jet collection with pt threshold of 20 GeV
-	TLorentzVector jet1Plus2, jet1Minus2,jet2PlusZ;
-	double SFb_out(0), effb_out(0);
-	if (DEBUG) cout << "Stop after line " << __LINE__ << endl;
+		TLorentzVector jet1Plus2, jet1Minus2,jet2PlusZ;
+		double SFb_out(0), effb_out(0);
 
-	if (hasRecoInfo) {
-		if (DEBUG) cout << "Stop after line " << __LINE__ << endl;
+		if (hasRecoInfo) {
+
 		nTotJets = JetAk04Eta->size();
 
 		/// LOOP TOTAL NUMBER OF RECO JETS
@@ -800,9 +774,7 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
 				//cout <<"  aaaa " << this_rand << endl;
 				counJets30++;
 				if (DEBUG){ 
-					cout << "Stop after line " << __LINE__ << endl;
 					cout << " b tags " << JetAk04BDiscCisvV2->at(i)<< endl;
-					cout << "Stop after line " << __LINE__ << endl;
 				}
 				bool passesBJets = false;
 				if ( DEBUG ) cout << " bbefore " << passesBJets << " n jets tot "<< nTotJets <<"    " << JetAk04BDiscCisvV2->at(i)<< endl;
@@ -824,9 +796,8 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
 				//if ( DEBUG && passesBJets ) cout << " after " << passesBJets << endl;
 				bool passTest = passesBJets ;
 				//if ( !passesBJets ) continue;
-				if ( DEBUG ) cout << " LEP SEL: " << lepSel << " passes b-jet" << passTest << endl;
 				
-				if (!EvtIsRealData && lepSel == "DMu" ) {
+				if (!EvtIsRealData && lepSel == DMu ) {
 				if ( DEBUG ){cout<< __LINE__  << " before Bchange  " << passesBJets << endl;
     						cout << __LINE__ <<"  Random " << this_rand<< " aa " << passesBJets << "  cvs " <<  JetAk04BDiscCisvV2->at(i)  << endl;
 					}
@@ -878,26 +849,9 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
 			} // end if jet pt > 30
 		} //End of loop over all the jets
 
-		//Get Event Flavour - FIXME!!! in 76X
-/*		for (int b=0; b<nTotJets; b++){
-			if (abs(JetAk04PartFlav->at(b)) == 5){
-				evFlav=5;
-				break;
-				}
-			else if (abs(JetAk04PartFlav->at(b)) == 4) evFlav=4;
-				
-			}
-*/
 		nGoodJets = jets.size();
 		weightBJets = weight;
 		if (!EvtIsRealData)  weightBJets *=weightJetEventProducer(jets,b_tag_cut);
-		//int nGoodBJets = 0 ;
-		if (DEBUG){
-			if ( nGoodBJets > 0 ) {cout << " aaaa3 " << nTotJets << " Njets pt>30:  " << counJets30<<  " b jets "<< counBJets << " N Jets  " << nGoodJets << " N Bjets" << nGoodBJets << endl;
-			}		
-			else { cout << "NOOOO BJETS" <<endl; }
-			}
-		if ( counBJets > nGoodJets ) cout << " jel si lud "<< counBJets<< "  " << nGoodJets << "  count BJets "<<nGoodBJets << endl;
 		// line below to test reco events that originate from TAU
 		if (fileName.Index("Tau") >= 0 && countTauS3 == 0 && hasGenInfo) {
 			passesTauCut = 0;
@@ -905,49 +859,10 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
 			passesLeptonCut = 0;
 		}
 	}  // END IF HAS RECO
-	//--- Fill puMVA ---
-	if (hasRecoInfo) {
-     /*       for (unsigned short i(0); i < jetsPuMva.size() ; i++){
-                if (passesLeptonCut) puMVA->Fill(JetAk04PuMva->at(jetsPuMva[i].patIndex), weight);
-            }
-	*/
-	 //--- For calculating b-tagging efficiency---
-	 for (unsigned short i(0); i < nGoodJets; i++){
-                //int jet_ind = jets[i].patIndex;
-                //if(fabs(JetAk04PartFlav->at(jet_ind)) == 5){
-                if(fabs(jets[i].partonFlavour) == 5){
-                    h_pt_eta_b->Fill(jets[i].v.Pt(), jets[i].v.Eta(), weight);
-                    h_pt_b->Fill(jets[i].v.Pt(), weight);
-                    if ( DEBUG ) cout << " mmmmm line:" <<__LINE__ <<" B disc" <<  jets[i].BDiscCisvV2 <<"  " << jets[i].BDiscCisvV2<< endl;  
-		 if(jets[i].BDiscCisvV2 >= b_tag_cut){
-                        h_pt_eta_b_tagged->Fill(jets[i].v.Pt(), jets[i].v.Eta(), weight);
-                        h_pt_b_tagged->Fill(jets[i].v.Pt(), weight);
-                    }
-                }
-                else if(fabs(JetAk04PartFlav->at(i)) == 4){
-                    h_pt_eta_c->Fill(jets[i].v.Pt(), jets[i].v.Eta(), weight);
-                    if(jets[i].BDiscCisvV2 >= b_tag_cut){
-                        h_pt_eta_c_tagged->Fill(jets[i].v.Pt(), jets[i].v.Eta(), weight);
-                    }
-                }
-                else {
-                    h_pt_eta_udsg->Fill(jets[i].v.Pt(), jets[i].v.Eta(), weight);
-                    h_pt_udsg->Fill(jets[i].v.Pt(), weight);
-                    if(jets[i].BDiscCisvV2 >= b_tag_cut){
-                        h_pt_eta_udsg_tagged->Fill(jets[i].v.Pt(), jets[i].v.Eta(), weight);
-                        h_pt_udsg_tagged->Fill(jets[i].v.Pt(), weight);
-                    }
-                }
-            }
-	 //--- End for calculating b-tagging efficiency---
-	  }
-        //---
-
 
 	//=======================================================================================================//
 
 	//cout << "passesLeptonCut 2 : " << passesLeptonCut << "\n";
-	if (DEBUG) cout << "Stop after line " << __LINE__ << endl;
 	//=======================================================================================================//
 	//        Retrieving gen jets          //
 	//====================================//
@@ -975,7 +890,6 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
 			}
 		}
 		nGoodGenJets = genJets.size();
-		//for (auto gJet:GJetAk04MatchedPartonID)
 		evFlav=0;
 		for (int b=0; b<nTotGenJets; b++){
 			if (abs(GJetAk04MatchedPartonID->at(b)) == 5){
@@ -991,7 +905,6 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
 	//=======================================================================================================//
 
 
-	if (DEBUG) cout << "Stop after line " << __LINE__ << endl;
 	//=======================================================================================================//
 	//     Matching gen and reco jets     //
 	//====================================//
@@ -1050,23 +963,24 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
 		sort(jets_20.begin(), jets_20.end(), JetDescendingOrder);
 		if (nGoodJets >= 2){
 			jet1Plus2 = jets[0].v + jets[1].v;
-                jet1Minus2 = jets[0].v - jets[1].v;
+            jet1Minus2 = jets[0].v - jets[1].v;
             }
-            jetsHT = 0;
-            for (unsigned short i(0); i < nGoodJets; i++){
-                jetsHT += jets[i].v.Pt();  
-            	}
-//JL
-	    for (unsigned short i(0); i < nGoodJets; i++) {
-		//if (i>3) break;
-		if ( jets[i].isBJet ) {
-			nGoodBJets++;
-			if ( evFlav == 5 ) nGoodBJets_b++;
-			else if ( evFlav == 4 ) nGoodBJets_c++;
-			else nGoodBJets_l++;
+		jetsHT = 0;
+		for (unsigned short i(0); i < nGoodJets; i++){
+			jetsHT += jets[i].v.Pt();  
 			}
-	    }
-        }
+
+		nGoodBJets_b=0; nGoodBJets_l=0;nGoodBJets_c=0;
+		for (unsigned short i(0); i < nGoodJets; i++) {
+			if ( jets[i].isBJet ) {
+				nGoodBJets++;
+				if ( evFlav == 5 ) nGoodBJets_b++; // b-quark
+				else if ( evFlav == 4 ) nGoodBJets_c++; // C-quark
+				else nGoodBJets_l++;
+				cout << "B:" << nGoodBJets_b << " C: " << nGoodBJets_c << " L: " << nGoodBJets_l << endl;
+			}
+		}
+	}
 
         if (hasGenInfo){
             vector<jetStruct> tmpGenJets;
@@ -1093,7 +1007,6 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
         //=======================================================================================================//
 
 
-        if (DEBUG) cout << "Stop after line " << __LINE__ << endl;
         //=======================================================================================================//
         // Select the best pair of jets for DPS  //
         //=======================================//
@@ -1139,7 +1052,16 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
                 //cout << "Selected at gen level" << endl;
                 nGenEventsVInc0Jets++;
                 nEffGenEventsVInc0Jets += genWeight;
-                genZNGoodJets_Zexc->Fill(nGoodGenJets, genWeight);
+
+		double RatioValue = 1.;
+//// WTF
+/*
+		if(UnfoldUnc){
+		    int binNumber = ZNGoodJets_Zexc_ratio->GetXaxis()->FindBin(nGoodJets);
+		    RatioValue =  ZNGoodJets_Zexc_ratio->GetBinContent(binNumber);
+		} 
+*/
+                genZNGoodJets_Zexc->Fill(nGoodGenJets, genWeight*RatioValue);
                 genZNGoodJets_Zinc->Fill(0., genWeight);
                 genZMass_Zinc0jet->Fill(genEWKBoson.M(), genWeight);
                 genZPt_Zinc0jet->Fill(genEWKBoson.Pt(), genWeight);
@@ -1385,11 +1307,21 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
                     genZPt_Zinc2jet->Fill(genEWKBoson.Pt(), genWeight);
                     genZRapidity_Zinc2jet->Fill(genEWKBoson.Rapidity(), genWeight);
                     genZEta_Zinc2jet->Fill(genEWKBoson.Eta(), genWeight);
-                    genSecondJetEta_Zinc2jet->Fill(fabs(genJets[1].v.Eta()), genWeight);
-                    genSecondJetAbsRapidity_Zinc2jet->Fill(fabs(genJets[1].v.Rapidity()), genWeight);
+
+                    double RatioValue =1.;
+		    double RatioValue1 = 1.;
+               /*     if(nGoodJets >= 2 && UnfoldUnc){
+			double binNumber = SecondJetEta_2_Zinc2jet_ratio->GetXaxis()->FindBin(fabs(jets[1].v.Eta()));
+			RatioValue =  SecondJetEta_2_Zinc2jet_ratio->GetBinContent(binNumber);
+			double binNumber1 = JetsHT_2_Zinc2jet_ratio->GetXaxis()->FindBin(jetsHT);
+			RatioValue1 = JetsHT_2_Zinc2jet_ratio->GetBinContent(binNumber1);
+                    }
+		*/
+                    genSecondJetEta_Zinc2jet->Fill(fabs(genJets[1].v.Eta()), genWeight*RatioValue);
+                    genSecondJetAbsRapidity_Zinc2jet->Fill(fabs(genJets[1].v.Rapidity()), genWeight*RatioValue);
                     genSecondJetEtaHigh_Zinc2jet->Fill(fabs(genJets[1].v.Eta()), genWeight);
                     genSecondJetRapidityHigh_Zinc2jet->Fill(fabs(genJets[1].v.Rapidity()), genWeight);
-                    genJetsHT_Zinc2jet->Fill(genJetsHT, genWeight);
+                    genJetsHT_Zinc2jet->Fill(genJetsHT, genWeight*RatioValue);  /// in original file we have here RatioValue1 
                     genptBal_Zinc2jet->Fill(genJet1Plus2PlusZ.Pt(), genWeight);
                     gendPhiJets_Zinc2jet->Fill(deltaPhi(genJets[0].v, genJets[1].v), genWeight);
                     genBestdPhiJets_Zinc2jet->Fill(deltaPhi(genBestTwoJets.first, genBestTwoJets.second), genWeight);
@@ -1526,17 +1458,38 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
                     }
 
                 }
-                if (nGoodGenJets_20 >= 3) genThirdJetPt_Zinc3jet->Fill(genJets_20[2].v.Pt(), genWeight);
+                if (nGoodGenJets_20 >= 3) {
+
+                    double RatioValue = 1.;
+             /*       if(nGoodJets_20 >= 3 && UnfoldUnc){
+                       double binNumber = ThirdJetPt_2_Zinc3jet_ratio->GetXaxis()->FindBin(jets_20[2].v.Pt());
+                       RatioValue =  ThirdJetPt_2_Zinc3jet_ratio->GetBinContent(binNumber);
+                    }
+		*/
+                    genThirdJetPt_Zinc3jet->Fill(genJets_20[2].v.Pt(), genWeight*RatioValue);
+
+
+                }
                 if (nGoodGenJets >= 3){
                     nGenEventsVInc3Jets++;
                     nEffGenEventsVInc3Jets += genWeight;
                     genZNGoodJets_Zinc->Fill(3., genWeight);
-                    genThirdJetEta_Zinc3jet->Fill(fabs(genJets[2].v.Eta()), genWeight);
-                    genThirdJetAbsRapidity_Zinc3jet->Fill(fabs(genJets[2].v.Rapidity()), genWeight);
+
+                    double RatioValue = 1.;
+		    double RatioValue1 = .1;
+                 /*   if(nGoodJets >= 3 && UnfoldUnc){
+                       double binNumber = ThirdJetEta_2_Zinc3jet_ratio->GetXaxis()->FindBin(fabs(jets[2].v.Eta()));
+                       RatioValue =  ThirdJetEta_2_Zinc3jet_ratio->GetBinContent(binNumber);
+                       double binNumber1 = JetsHT_2_Zinc3jet_ratio->GetXaxis()->FindBin(jetsHT);
+                       RatioValue1 = JetsHT_2_Zinc3jet_ratio->GetBinContent(binNumber1);
+                    }
+		 */
+                    genThirdJetEta_Zinc3jet->Fill(fabs(genJets[2].v.Eta()), genWeight*RatioValue);
+                    genThirdJetAbsRapidity_Zinc3jet->Fill(fabs(genJets[2].v.Rapidity()), genWeight*RatioValue);
                     genThirdJetEtaHigh_Zinc3jet->Fill(fabs(genJets[2].v.Eta()), genWeight);
                     genThirdJetRapidityHigh_Zinc3jet->Fill(fabs(genJets[2].v.Rapidity()), genWeight);
-                    genJetsHT_Zinc3jet->Fill(genJetsHT, genWeight);
-
+                    genJetsHT_Zinc3jet->Fill(genJetsHT, genWeight*RatioValue1);
+ 
                     /////Azimuth cross check//////////////////////////////////
                     genDPhiZFirstJet_Zinc3jet->Fill(fabs(genEWKBoson.DeltaPhi(genJets[0].v)),genWeight);
                     genDPhiZSecondJet_Zinc3jet->Fill(fabs(genEWKBoson.DeltaPhi(genJets[1].v)),genWeight);
@@ -1624,7 +1577,7 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
         if (hasRecoInfo && passesLeptonChargeCut && passesTauCut) {
             ZMassFrom60_Zinc0jet->Fill((leptons[0].v + leptons[1].v).M(), weight);
         }
-         if ( DEBUG ) cout << passesLeptonCut << " , " << (!bTagJetFound || !rejectBTagEvents)  << "\n";
+        if ( DEBUG ) cout << passesLeptonCut << " , " << (!bTagJetFound || !rejectBTagEvents)  << "\n";
         if (hasRecoInfo && passesLeptonCut && (!bTagJetFound || !rejectBTagEvents)) { 
             //=======================================================================================================//
 
@@ -1635,19 +1588,15 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
 
             //cout << "Selected at reco level" << endl;
             NVtx->Fill(EvtVtxCnt, weight);
-/*  // CAG
-            double weightNoPUweight(1);
-            if (hasRecoInfo && !EvtIsRealData) weightNoPUweight = weight/puWeight.weight(int(EvtPuCntTruth));
-            NVtx_NoPUweight->Fill(EvtVtxCnt, weightNoPUweight);
-*/
             if (DEBUG) cout << "Stop after line " << __LINE__ << endl;
             nEventsVInc0Jets++;
             nEffEventsVInc0Jets += weight;
             ZNGoodJetsNVtx_Zexc->Fill(nGoodJets, EvtVtxCnt  , weight);
             ZNGoodJets_Zinc->Fill(0., weight);
-            ZNGoodJets_Zexc->Fill(nGoodJets, weight);
 
-	    ZNGoodJets_Zinc_NoWeight->Fill(0.);
+	    	double RatioValue = 1;
+            ZNGoodJets_Zexc->Fill(nGoodJets, weight*RatioValue);
+            ZNGoodJets_Zinc_NoWeight->Fill(0.);
             ZMass_Zinc0jet->Fill(EWKBoson.M(), weight);
             ZPt_Zinc0jet->Fill(EWKBoson.Pt(), weight);
             ZRapidity_Zinc0jet->Fill(EWKBoson.Rapidity(), weight);
@@ -1663,7 +1612,6 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
             dEtaLeptons_Zinc0jet->Fill(leptons[0].v.Eta() - leptons[1].v.Eta(), weight);
             dRLeptons_Zinc0jet->Fill(deltaR(leptons[0].v, leptons[1].v), weight);
             SpTLeptons_Zinc0jet->Fill(SpTsub(leptons[0].v, leptons[1].v), weight);
-	    //METPt_Zinc0jet->Fill(MET.Pt(),weight);
             if (nGoodJets == 0){
                 //TruePU_0->Fill(EvtPuCntTruth, weight);
                 //PU_0->Fill(EvtPuCnt, weight);
@@ -1682,6 +1630,15 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
             }
 
             if (nGoodJets_20 >= 1) {
+		
+		double RatioValue=1;
+/*		if(UnfoldUnc){
+		    double binNumber = FirstJetPt_2_Zinc1jet_ratio->GetXaxis()->FindBin(jets_20[0].v.Pt());
+		    RatioValue =  FirstJetPt_2_Zinc1jet_ratio->GetBinContent(binNumber);
+		}
+*/
+                FirstJetPt_Zinc1jet->Fill(jets_20[0].v.Pt(), weight*RatioValue);
+               // if(nEvents % 2) FirstJetPt_Zinc1jet_Odd->Fill(jets_20[0].v.Pt(), weight*RatioValue);
                 FirstJetPt_Zinc1jet->Fill(jets_20[0].v.Pt(), weight);
                 FirstJetPt_2_Zinc1jet->Fill(jets_20[0].v.Pt(), weight);
                 FirstJetPt_Zinc1jet_NVtx->Fill(jets_20[0].v.Pt(), EvtVtxCnt, weight);
@@ -1833,25 +1790,40 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
                     SumZFirstJetRapidity_FirstJetPt80_Zinc1jet->Fill(fabs(EWKBoson.Rapidity()+jets[0].v.Rapidity())/2.0,weight);
                     DifZFirstJetRapidity_FirstJetPt80_Zinc1jet->Fill(fabs(EWKBoson.Rapidity()-jets[0].v.Rapidity())/2.0,weight);
                 }
+			if (DEBUG) cout << __LINE__ << "  aaaa1 " << EWKBoson.Pt() << "  " << leptons.size() << endl;
 
                 ZNGoodJets_Zinc->Fill(1., weight);
                 ZNGoodJets_Zinc_NoWeight->Fill(1.);
                 ZPt_Zinc1jet->Fill(EWKBoson.Pt(), weight);
+                lepPt_Zinc1jet->Fill(leptons[0].v.Pt(), weight);
+                if (DEBUG) cout << "Eta: " << leptons[0].v.Eta() << endl;
+                lepEta_Zinc1jet->Fill(leptons[0].v.Eta(), weight);  
+                lepPt_Zinc1jet->Fill(leptons[1].v.Pt(), weight);
+                lepEta_Zinc1jet->Fill(leptons[1].v.Eta(), weight);
+			if (DEBUG) cout << __LINE__ << "  aaaa1 " << EWKBoson.Pt() << "  " << dRZJetMin << endl;
+                dPhiLeptons_Zinc1jet->Fill(deltaPhi(leptons[0].v, leptons[1].v), weight);
+                dRLeptons_Zinc1jet->Fill(deltaPhi(leptons[0].v, leptons[1].v), weight);
+                dEtaLeptons_Zinc1jet->Fill(leptons[0].v.Eta() - leptons[1].v.Eta(), weight);
+                ZMass_Zinc1jet->Fill(EWKBoson.M(), weight);
                 ZRapidity_Zinc1jet->Fill(EWKBoson.Rapidity(), weight);
                 ZAbsRapidity_Zinc1jet->Fill(fabs(EWKBoson.Rapidity()), weight);
                 ZEta_Zinc1jet->Fill(EWKBoson.Eta(), weight);
+			if (DEBUG) cout << __LINE__ << "  aaaa1 " << EWKBoson.Pt() << "  " << dRZJetMin << endl;
                 ZEtaUpTo5_Zinc1jet->Fill(EWKBoson.Eta(), weight);
                 SpTLeptons_Zinc1jet->Fill(SpTsub(leptons[0].v, leptons[1].v), weight);
                 FirstJetEta_Zinc1jet->Fill(fabs(jets[0].v.Eta()), weight);
                 FirstJetAbsRapidity_Zinc1jet->Fill(fabs(jets[0].v.Rapidity()), weight);
+			if (DEBUG) cout << __LINE__ << "  aaaa1 " << EWKBoson.Pt() << "  " << dRZJetMin << endl;
                 FirstJetEtaHigh_Zinc1jet->Fill(fabs(jets[0].v.Eta()), weight);
                 FirstJetRapidityHigh_Zinc1jet->Fill(fabs(jets[0].v.Rapidity()), weight);
                 FirstJetEtaFull_Zinc1jet->Fill(jets[0].v.Eta(), weight);
                 FirstJetPhi_Zinc1jet->Fill(jets[0].v.Phi(), weight);
-                JetsHT_Zinc1jet->Fill(jetsHT, weight);
+                //JetsHT_Zinc1jet->Fill(jetsHT, weight*RatioValue); /// in original file we have here RatioValue1 
+			if (DEBUG) cout << __LINE__ << "  aaaa1 " << EWKBoson.Pt() << "  " << dRZJetMin << endl;
                 dEtaBosonJet_Zinc1jet->Fill(fabs(jets[0].v.Eta() - EWKBoson.Eta()), weight);
                 SumZJetRapidity_Zinc1jet->Fill(0.5*fabs(EWKBoson.Rapidity()+jets[0].v.Rapidity()), weight);
                 DifZJetRapidity_Zinc1jet->Fill(0.5*fabs(EWKBoson.Rapidity()-jets[0].v.Rapidity()), weight);
+			if (DEBUG) cout << __LINE__ << "  aaaa1 " << EWKBoson.Pt() << "  " << dRZJetMin << endl;
 
                 for (unsigned short i(0); i < nGoodJets; i++) {
                     double trans_mass = jets[i].v.Mt();
@@ -1922,25 +1894,20 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
             } // end inclusive 1 jets
 
             if (nGoodJets_20 >= 2) SecondJetPt_Zinc2jet->Fill(jets_20[1].v.Pt(), weight);
-    		if (DEBUG) cout << " aaaaa2 " <<__LINE__<<"   " << nGoodJets << endl;
 
 
 /// MINIMUM 2 JETS CASE
 
 	     if (nGoodJets >= 2){
-    		if ( DEBUG ) cout << " bbbbb " << nGoodJets << endl;
 
 // SEVA2 START 2 jet   
-	        //METPt_Zinc2jet->Fill(MET.Pt(),weight);
 		if ( fabs(EWKBoson.Pt()) > 0.) {
-            	   if (DEBUG) cout << "Stop after line " << __LINE__ << endl;
 
-		  double dRZJetMin=1111110.;
-		  for (  int l = 0; l < nGoodJets; l++){
-			 double tempdRZJetMin = deltaR( EWKBoson, jets[l].v);
-		  	 if ( tempdRZJetMin < dRZJetMin )  dRZJetMin = tempdRZJetMin;
-			//cout << " cccccc : " << dRZJetMin << endl;
-			}
+		double dRZJetMin=1111110.;
+		for (  int l = 0; l < nGoodJets; l++){
+			double tempdRZJetMin = deltaR( EWKBoson, jets[l].v);
+			if ( tempdRZJetMin < dRZJetMin )  dRZJetMin = tempdRZJetMin;
+		}
 		
 		RatioSumPtZPtJ2OverPtJ1_Zinc2jet->Fill(jet2PlusZ.Pt()/jets[0].v.Pt(), weight);
 		RatioDiffJ1J2JetPtToZM_Zinc2jet->Fill((jets[0].v.Pt()-jets[1].v.Pt())/EWKBoson.Pt(),weight);
@@ -2437,11 +2404,11 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
 
             //=======================================================================================================//
 //BJets JL
-        ZNGoodBJets_Zexc->Fill(nGoodBJets, weightBJets);
-        ZNGoodBJets_Zexc_b->Fill(nGoodBJets_b, weightBJets);
-        ZNGoodBJets_Zexc_c->Fill(nGoodBJets_c, weightBJets);
-        ZNGoodBJets_Zexc_l->Fill(nGoodBJets_l, weightBJets);
-        ZNGoodBJetsNVtx_Zexc->Fill(nGoodBJets, EvtVtxCnt, weightBJets);
+	ZNGoodBJets_Zexc->Fill(nGoodBJets, weightBJets);
+	ZNGoodBJets_Zexc_b->Fill(nGoodBJets_b, weightBJets);
+	ZNGoodBJets_Zexc_c->Fill(nGoodBJets_c, weightBJets);
+	ZNGoodBJets_Zexc_l->Fill(nGoodBJets_l, weightBJets);
+	ZNGoodBJetsNVtx_Zexc->Fill(nGoodBJets, EvtVtxCnt, weightBJets);
 	for(auto &jet: jets)
 		CSV->Fill(jet.BDiscCisvV2,weightBJets);
 	if (nGoodBJets>=1){
@@ -2574,8 +2541,6 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
 
 
 	if (nGoodBJets==2){
-		//METE_Zexc2Bjet->Fill(MET.E(),weightBJets);
-		//METPt_Zexc2Bjet->Fill(MET.Pt(),weightBJets);
 		ZptBJets_Zexc2Bjet->Fill(EWKBoson.Pt(),weightBJets);
 		if (evFlav==5) ZptBJets_Zexc2Bjet_b->Fill(EWKBoson.Pt(),weightBJets);
 		else if (evFlav==4) ZptBJets_Zexc2Bjet_c->Fill(EWKBoson.Pt(),weightBJets);
@@ -2626,7 +2591,7 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
         //             Unfolding               //
         //====================================//
         //if ( bTagJetFound > 0 )  cout << " TEST b jets : " << bTagJetFound << endl;
-	if (hasRecoInfo && hasGenInfo && (!bTagJetFound || !rejectBTagEvents)) {
+		if (hasRecoInfo && hasGenInfo && (!bTagJetFound || !rejectBTagEvents)) {
             if (nGoodJets_20 >= 1 && nGoodGenJets_20 >= 1) {
                 //looks for matching gen jet:
                 int igen = -1;
@@ -3004,33 +2969,9 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
                 hresponseFifthJetPt_Zinc5jet->Fill(jets_20[4].v.Pt(), genJets_20[4].v.Pt(), weight);      
             }
 
-        }
+        } //Reco and gen info
         //=======================================================================================================//
 
-//	if(passesLeptonCut && !passesgenLeptonCut){
-//	    std::cout << "Event " << nEvents << " passes Reco cut but not gen cuts: reco - gen\n"
-//		      << "Nleptons: " << nLeptons << " - " << ngenLeptons << "\n"
-//		      << "Pt l1:    " 
-//		      << (nLeptons > 0 ? leptons[0].v.Pt() : -1) << " - "
-//		      << (ngenLeptons > 0 ? genLeptons[0].v.Pt() : -1) << "\n"
-//		      << "Pt l2:    " 
-//		      << (nLeptons > 1 ? leptons[1].v.Pt() : -1) << " - "
-//		      << (ngenLeptons > 1 ? genLeptons[1].v.Pt() : -1) << "\n"
-//		      << "Eta l1:    " 
-//		      << (nLeptons > 0 ? leptons[0].v.Eta() : -1) << " - "
-//		      << (ngenLeptons > 0 ? genLeptons[0].v.Eta() : -1) << "\n"
-//		      << "Eta l2:    " 
-//		      << (nLeptons > 1 ? leptons[1].v.Eta() : -1) << " - "
-//		      << (ngenLeptons > 1 ? genLeptons[1].v.Eta() : -1) << "\n";
-//			  
-//	    if(nLeptons >= 2 && ngenLeptons >= 2){
-//		std::cout << "Charges: " << (leptons[0].charge ? '+' : '-' )
-//                          << (leptons[1].charge ? '+' : '-' )
-//                          << "-" << (genLeptons[0].charge ? '+' : '-')
-//			  << (genLeptons[1].charge ? '+' : '-');
-//	    }
-//	}
-    if ( DEBUG ) cout << "  TTTTT "  << endl;
     } //End of loop over all the events
     //==========================================================================================================//
 
@@ -3147,100 +3088,58 @@ double ZJets::computePDFWeight()
 
     //-- get the pdgId of the two colliding partons 
     double wPdf(1.);
-/*
-
-    int id1 = pdfInfo_->at(0);
-    int id2 = pdfInfo_->at(1);
-    if (id1 == 21) id1 = 0; // 21 is Pythia convention for gluon, but needs to be 0 for LHAPDF
-    if (id2 == 21) id2 = 0;
-
-    double pdf1  = LHAPDF::xfx(1, pdfInfo_->at(2), pdfInfo_->at(4), id1);
-    double pdf2  = LHAPDF::xfx(1, pdfInfo_->at(3), pdfInfo_->at(4), id2);
-    double pdf01 = LHAPDF::xfx(2, pdfInfo_->at(2), pdfInfo_->at(4), id1);
-    double pdf02 = LHAPDF::xfx(2, pdfInfo_->at(3), pdfInfo_->at(4), id2);
-
-    if (pdfInfo_->at(2) * pdfInfo_->at(3) > 0) {
-        wPdf = pdf1 * pdf2;
-        if (pdf01*pdf02 <= 0 || pdf1*pdf2 <= 0) {
-            cout << "Small problem" << endl;
-            wPdf = 1;
-        }
-        else {
-            wPdf /= (pdf01 * pdf02);
-        }
-    }
-*/
 
     return wPdf;
 
 }
+//-------------------------------------------------
 
-
-void ZJets::getEMuons(vector<leptonStruct>& leptons,  vector<leptonStruct>& vetoMuons)
+void ZJets::getEMuons(vector<leptonStruct>& leptons,  vector<leptonStruct>& vetoLeptons)
 {
 
     //--- get the number of Muon candidates from the vector size ---
-        unsigned short nTotMu(MuEta->size());
-    
-    // cout << ElEta->size() << "\n";
-    // cout << MuEta->size() << "\n";
+     unsigned short nTotMu(MuEta->size());
      for (unsigned short i(0); i < nTotMu; i++) {
-
           leptonStruct mu(MuPt->at(i),
                        MuEta->at(i),
                        MuPhi->at(i),
                        MuE->at(i),
                        MuCh->at(i),
                        MuIdTight->at(i),  
-                       MuPfIso->at(i),                                                                  			  MuEta->at(i),
-		       0,	
-		       1);  // CommentAG
+                       MuPfIso->at(i), 
+                       MuEta->at(i),    /// SC Eta -- if one needs it !!!
+					   0,	
+					   13);  // CommentAG
 
-/*
-	float qter = 1.0;
-	if (doRochester) {
-	    if (!EvtIsRealData) {
-		rmcor->momcor_mc(mu.v, (float)mu.charge, 0, qter);
-	    }
-	    else {
-		rmcor->momcor_data(mu.v, (float)mu.charge, 0, qter);
-	    }
-	}
-*/
         bool muPassesPtCut(mu.v.Pt() >= (lepPtCutMin*0.8));
         bool muPassesEtaCut(fabs(mu.v.Eta()) <= 0.1*lepEtaCutMax);
         bool muPassesIdCut(mu.id  & 1); 
 
         bool muPassesIsoCut(0);
-	muPassesIsoCut = (mu.iso < muIso_);
+		muPassesIsoCut = (mu.iso < muIso_);
         bool muPassesTrig(1); //no matching with leptons offtrigger
         //--- veto muons ---
         bool muPassesVetoPtCut(mu.v.Pt() >= 15);
         bool muPassesVetoEtaCut(fabs(mu.v.Eta()) <= 2.4);
         // bool muPassesVetoIdCut(mu.id > 0); // muon Id  // CommentAG: not sure what does it mean
 
-        // select the good muons only
-        //cout << i << " pt=" << mu.v.Pt() << " eta=" << mu.v.Eta() << " phi=" << mu.v.Phi() << endl; 
-        //cout << "id=" << muPassesIdCut << " iso=" << muPassesIsoCut << " trig=" << muPassesTrig << endl;
-
         if (muPassesPtCut && muPassesEtaCut && muPassesIdCut && muPassesIsoCut && muPassesTrig) {
-           // cout << "weare here"<< "\n";
             leptons.push_back(mu); 
-           // cout << "MuId " << mu.id << "\n";
         }
         // select the veto muons
-        else if (lepSel == "SMu" && muPassesVetoPtCut && muPassesVetoEtaCut) {  //CommentAG:  need to check muPassesVetoIdCut! 
-            vetoMuons.push_back(mu); 
+        else if (lepSel == SMu && muPassesVetoPtCut && muPassesVetoEtaCut) {  //CommentAG:  need to check muPassesVetoIdCut! 
+            vetoLeptons.push_back(mu); 
         }
+		// for ttbar
+		if ( leptons.size() == 1 ) continue;
+		else if (lepSel == EMu && muPassesVetoPtCut && muPassesVetoEtaCut) {  //CommentAG:  need to check muPassesVetoIdCut! 
+			  vetoLeptons.push_back(mu);
+		}
     }//End of loop over all the muons
 
 
    //--- good electrons ---
-     unsigned short nTotEl(ElEta->size());
-   // cout << ElEta->size() << "\n";
- 
-
-
+    unsigned short nTotEl(ElEta->size());
     for (unsigned short i(0); i < nTotEl; i++){
 
         leptonStruct ele(ElPt->at(i), 
@@ -3252,7 +3151,7 @@ void ZJets::getEMuons(vector<leptonStruct>& leptons,  vector<leptonStruct>& veto
 			 ElPfIsoRho->at(i), 
 			 ElEtaSc->at(i), 
 			 0., 
-                         0); // CommentAG patElecTrig_->at(i)
+             11); // CommentAG patElecTrig_->at(i)
 	
         //--- good electrons ---
         bool elePassesPtCut(ele.v.Pt() >= (lepPtCutMin*0.8));
@@ -3260,7 +3159,7 @@ void ZJets::getEMuons(vector<leptonStruct>& leptons,  vector<leptonStruct>& veto
         bool elePassesIdCut(ele.id >= 4); /// 4 is medium ID, 2 is Loose ID
         bool elePassesIsoCut(ele.iso < eIso_);
         //bool elePassesAnyTrig(ele.trigger & 0x2);
-	bool elePassesAnyTrig(true); //no matching with lepton from trigger.
+		bool elePassesAnyTrig(true); //no matching with lepton from trigger.
   
         //--- veto electrons ---
         bool elePassesVetoPtCut(ele.v.Pt() >= 15);
@@ -3270,13 +3169,11 @@ void ZJets::getEMuons(vector<leptonStruct>& leptons,  vector<leptonStruct>& veto
 
         // select the good electrons only
         if (elePassesPtCut && elePassesEtaCut && elePassesIdCut && elePassesIsoCut){   // AG: skip the trigger
-           //cout << "we are here" << "\n";
             leptons.push_back(ele);
-            //cout << "ElId " << ele.id << "\n";
         }
         // select the veto electrons
         else if (elePassesVetoPtCut && elePassesVetoEtaCut && elePassesVetoIdCut && elePassesVetoIsoCut) {
-         //   vetoElectrons.push_back(ele);   // TO DO
+            vetoLeptons.push_back(ele);   // TO DO
         }
    
     }//End of loop over all the electrons
@@ -3290,27 +3187,8 @@ void ZJets::getMuons(vector<leptonStruct>& leptons,  vector<leptonStruct>& vetoM
     //--- get the number of Muon candidates from the vector size ---
     unsigned short nTotLeptons(MuEta->size());
 
-    //    bool eventTrigger = false;
-    // we also have event trigger variables --> we should at least match one of the leptons to trigger
-/* // CommentAG: check patMuonTrig
+   if ( DEBUG ) cout << " getMuons" << __LINE__ << endl;
     for (unsigned short i(0); i < nTotLeptons; i++) {
-        int whichTrigger(patMuonTrig_->at(i));
-        if (lepSel == "SMu" && (whichTrigger & 0x1)) eventTrigger = true;
-    }
-  */        
-
-    for (unsigned short i(0); i < nTotLeptons; i++) {
-	//        double muonId = 0;
-
-       //CommentAG: don't have patMuonCombId
-/*
-        if(fileName.Index("mcatnlo") >= 0 || fileName.Index("MG-MLM") >= 0) {
-            muonId = (double) patMuonCombId_Int->at(i);
-        }
-        else { 
-            muonId = (double) patMuonCombId_Double->at(i);
-        }
-*/
         leptonStruct mu(MuPt->at(i), 
                 MuEta->at(i), 
                 MuPhi->at(i), 
@@ -3319,61 +3197,43 @@ void ZJets::getMuons(vector<leptonStruct>& leptons,  vector<leptonStruct>& vetoM
                 MuIdTight->at(i),    //  CommentAG: muonId; Tight muons are selected in Bonzai
                 MuPfIso->at(i), 
                 MuEta->at(i),
-                13,
-		0);  // CommentAG
+                0,
+				13);  // CommentAG
 
 
-	float qter = 1.0;
-	if (doRochester) {
-	    if (!EvtIsRealData) {
-		rmcor->momcor_mc(mu.v, (float)mu.charge, 0, qter);
-	    }
-	    else {
-		rmcor->momcor_data(mu.v, (float)mu.charge, 0, qter);
-	    }
-	}
+		float qter = 1.0;
+		if (doRochester) {
+			if (!EvtIsRealData) {
+			rmcor->momcor_mc(mu.v, (float)mu.charge, 0, qter);
+			}
+			else {
+			rmcor->momcor_data(mu.v, (float)mu.charge, 0, qter);
+			}
+		}
 
         bool muPassesPtCut(mu.v.Pt() >= (lepPtCutMin*0.8));
         bool muPassesEtaCut(fabs(mu.v.Eta()) <= 0.1*lepEtaCutMax);
-       // bool muPassesIdCut(mu.id & 0x1);  //CommentAG: Tight muons Id are selected in the Bonzai Maker
         bool muPassesIdCut(mu.id  & 1); 
 
         bool muPassesIsoCut(0);
-	///        if (lepSel == "DMu" && mu.iso < 0.25) muPassesIsoCut = 1;  
-	//        else if (lepSel == "SMu" && mu.iso < 0.15) muPassesIsoCut = 1;
-	muPassesIsoCut = (mu.iso < muIso_);
+		muPassesIsoCut = (mu.iso < muIso_);
         bool muPassesTrig(1); //no matching with leptons offtrigger
-       // if (lepSel == "DMu" && (mu.trigger & 0x4)) muPassesTrig = 1;       // HLT_Mu17_Mu8 !!!! changed from 0x8 to 0x4
-//	const Long64_t dimutrigmask = 19 | 21;
-//	const Long64_t mutrigmask = 18 | 22;
-//        if (lepSel == "DMu" && (TrigHltDiMu  & dimutrigmask)) muPassesTrig = 1; 
-//	else if (lepSel == "SMu" && (mu.trigger & mutrigmask)) muPassesTrig = 1;  // HLT_IsoMu24_eta2p1_v
 
         //--- veto muons ---
         bool muPassesVetoPtCut(mu.v.Pt() >= 15);
         bool muPassesVetoEtaCut(fabs(mu.v.Eta()) <= 2.4);
-        // bool muPassesVetoIdCut(mu.id > 0); // muon Id  // CommentAG: not sure what does it mean
 
         /// for files obtained form bugra
-        if (fileName.Index("Sherpa_Bugra_1_13_UNFOLDING") >= 0 && mu.trigger > 0) muPassesTrig = 1; // Bugra only keeps the double electron trigger !!!!! 
-
-        // select the good muons only
-        //cout << i << " pt=" << mu.v.Pt() << " eta=" << mu.v.Eta() << " phi=" << mu.v.Phi() << endl; 
-        //cout << "id=" << muPassesIdCut << " iso=" << muPassesIsoCut << " trig=" << muPassesTrig << endl;
-
-        
-       // if (muPassesPtCut && muPassesEtaCut && muPassesIdCut && muPassesIsoCut && (!useTriggerCorrection || muPassesTrig || eventTrigger)) {   // CommentAG: this is original line which is replaced by:
+        //if (fileName.Index("Sherpa_Bugra_1_13_UNFOLDING") >= 0 && mu.trigger > 0) muPassesTrig = 1; // Bugra only keeps the double electron trigger !!!!! 
 
 
         if (muPassesPtCut && muPassesEtaCut && muPassesIdCut && muPassesIsoCut && muPassesTrig) {
             leptons.push_back(mu); 
         }
         // select the veto muons
-        else if (lepSel == "SMu" && muPassesVetoPtCut && muPassesVetoEtaCut) {  //CommentAG:  need to check muPassesVetoIdCut! 
+        else if (lepSel == SMu && muPassesVetoPtCut && muPassesVetoEtaCut) {  //CommentAG:  need to check muPassesVetoIdCut! 
             vetoMuons.push_back(mu); 
         }
-
-
     }//End of loop over all the muons
 }
 
@@ -3384,14 +3244,6 @@ void ZJets::getElectrons(vector<leptonStruct>& leptons,  vector<leptonStruct>& v
 
     // if we don't really care to match both leptons to trigger
     bool eventTrigger = false;
-/*
-    for (unsigned short i(0); i < nTotLeptons; i++){
- // CommentAG
-        int whichTrigger(patElecTrig_->at(i));
-        if (lepSel == "DE" && (whichTrigger & 0x2)) eventTrigger = true;      // HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v
-        else if (lepSel == "SE" && (whichTrigger & 0x1)) eventTrigger = true; // HLT_Ele27_WP80_v
-    }
-*/
     for (unsigned short i(0); i < nTotLeptons; i++){
 
         leptonStruct ele(ElPt->at(i), 
@@ -3402,17 +3254,16 @@ void ZJets::getElectrons(vector<leptonStruct>& leptons,  vector<leptonStruct>& v
 			 ElId->at(i), 
 			 ElPfIsoRho->at(i), 
 			 ElEtaSc->at(i), 
-			 11,
-			 0.); // CommentAG patElecTrig_->at(i)
+			 0,
+			 11.); // CommentAG patElecTrig_->at(i)
 	
         //--- good electrons ---
         bool elePassesPtCut(ele.v.Pt() >= (lepPtCutMin*0.8));
         bool elePassesEtaCut(fabs(ele.scEta) <= min(1.4442, 0.1*lepEtaCutMax) || (fabs(ele.scEta) >= 1.566 && fabs(ele.scEta) <= 0.1*lepEtaCutMax));
         bool elePassesIdCut(ele.id >= 4); /// 4 is medium ID, 2 is Loose ID
         bool elePassesIsoCut(ele.iso < eIso_);
-        //bool elePassesAnyTrig(ele.trigger & 0x2);
-	bool elePassesAnyTrig(true); //no matching with lepton from trigger.
-        if (fileName.Index("Sherpa_Bugra_1_13_UNFOLDING") > 0) elePassesAnyTrig = true;
+		bool elePassesAnyTrig(true); //no matching with lepton from trigger.
+        //if (fileName.Index("Sherpa_Bugra_1_13_UNFOLDING") > 0) elePassesAnyTrig = true;
 
         //--- veto electrons ---
         bool elePassesVetoPtCut(ele.v.Pt() >= 15);
@@ -3421,7 +3272,8 @@ void ZJets::getElectrons(vector<leptonStruct>& leptons,  vector<leptonStruct>& v
         bool elePassesVetoIsoCut(ele.iso < 0.25);
 
         // select the good electrons only
-        if (elePassesPtCut && elePassesEtaCut && elePassesIdCut && elePassesIsoCut && (!useTriggerCorrection || elePassesAnyTrig || eventTrigger)){
+        if (elePassesPtCut && elePassesEtaCut && elePassesIdCut && elePassesIsoCut){   // AG: skip the trigger
+        //if (elePassesPtCut && elePassesEtaCut && elePassesIdCut && elePassesIsoCut && (!useTriggerCorrection || elePassesAnyTrig || eventTrigger)){
             leptons.push_back(ele);
         }
         // select the veto electrons
@@ -3433,12 +3285,12 @@ void ZJets::getElectrons(vector<leptonStruct>& leptons,  vector<leptonStruct>& v
 }
 
 
-ZJets::ZJets(const TString& lepSel_, TString sampleLabel, TString fileName_,
+ZJets::ZJets(selection lepSel_, TString sampleLabel, TString fileName_,
 	     float lumi, bool useTriggerCorrection_, int systematics_,
 	     int direction_, float xsecUnc_, int lepPtCutMin_, int lepEtaCutMax_, 
 	     int jetPtCutMin_, int jetEtaCutMax_,  Long_t maxEvents_,
 	     TString outDir_, TString bonzaiDir, int maxFiles): 
-    HistoSetZJets(lepSel_), outputDirectory(outDir_),
+    HistoSetZJets(getLepSel_string(lepSel_).Data()), outputDirectory(outDir_),
     fileName(fileName_), lumi_(lumi), useTriggerCorrection(useTriggerCorrection_), 
     systematics(systematics_), direction(direction_), xsecUnc(xsecUnc_), 
     lepPtCutMin(lepPtCutMin_), lepEtaCutMax(lepEtaCutMax_), jetPtCutMin(jetPtCutMin_), jetEtaCutMax(jetEtaCutMax_),
@@ -3451,7 +3303,7 @@ ZJets::ZJets(const TString& lepSel_, TString sampleLabel, TString fileName_,
 
     //--------------------------------------------
 
-    rejectBTagEvents = lepSel.BeginsWith("S"); 
+    rejectBTagEvents = getLepSel_string(lepSel).BeginsWith("S"); 
     
     fChain = new TChain("", "");
 
@@ -3465,7 +3317,6 @@ ZJets::ZJets(const TString& lepSel_, TString sampleLabel, TString fileName_,
 
     readCatalog(fullFileName, bonzaiDir, maxFiles, &lumi_, &xsec_,
 		fChain, &fBonzaiHeaderChain, &fBonzaiBitFieldsChain);
-    
     getMcNorm();
 
     if(!setTriggerMask()){
@@ -3670,7 +3521,6 @@ void ZJets::getMcNorm(){
     }
 
     if(EvtWeightSums_.size() == 0 || InEvtWeightSums_.size() == 0 || InEvtWeightSums_[0] == 0 ){
-	cout << "  InEvtCount_ " << InEvtCount_ << endl;
 	if(InEvtCount_){
 	    skimAccep_ = std::vector<double>(1, EvtCount_/InEvtCount_);
 	} else{
@@ -3693,9 +3543,8 @@ ZJets::~ZJets(){
 
 void ZJets::CreateOutputFileName(const TString& pdfSet, int pdfMember, double muR, double muF, int iJob){
     outputFileName =  CreateOutputFileName(pdfSet, pdfMember, muR, muF, iJob,
-					   lepSel, sampleLabel_, useTriggerCorrection, systematics, direction,
+					   getLepSel_string(lepSel), sampleLabel_, useTriggerCorrection, systematics, direction,
 					   jetPtCutMin, jetEtaCutMax, outputDirectory);
-cout << " OUTPUT FILE NAME: " << outputFileName << endl;
 }
 
 string ZJets::CreateOutputFileName(const TString& pdfSet, int pdfMember, double muR, double muF, int iJob,
@@ -3770,6 +3619,7 @@ void ZJets::Init(bool hasRecoInfo, bool hasGenInfo){
     GJetAk04Phi = 0;
     GJetAk04E = 0;
     GJetAk04MatchedPartonID = 0;
+    GJetAk04MatchedPartonDR = 0;
 
 
     ElPt = 0;
@@ -3850,7 +3700,19 @@ void ZJets::Init(bool hasRecoInfo, bool hasGenInfo){
         fChain->SetBranchAddress("TrigHltEl",   &TrigHltEl,   &b_TrigHltEl);
         fChain->SetBranchAddress("TrigHltDiEl", &TrigHltDiEl, &b_TrigHltDiEl);
 
-        if (lepSel == "DE" || lepSel == "SE"){
+        if (lepSel == EMu){
+            fChain->SetBranchAddress("MuPt", &MuPt, &b_MuPt);
+            fChain->SetBranchAddress("MuEta", &MuEta, &b_MuEta);
+            fChain->SetBranchAddress("MuPhi", &MuPhi, &b_MuPhi);
+            fChain->SetBranchAddress("MuE", &MuE, &b_MuE);
+            fChain->SetBranchAddress("MuCh", &MuCh, &b_MuCh);
+            fChain->SetBranchAddress("MuIdTight", &MuIdTight, &b_MuIdTight);
+            if(fileName.Index("mcatnlo") >= 0 || fileName.Index("MG-MLM") >= 0) {
+                // CommentAG: before: patMuonCombId_Int
+                fChain->SetBranchAddress("MuId", &MuId, &b_MuId);
+            }
+            fChain->SetBranchAddress("MuPfIso", &MuPfIso, &b_MuPfIso);
+
             fChain->SetBranchAddress("ElPt", &ElPt, &b_ElPt);
             fChain->SetBranchAddress("ElEta", &ElEta, &b_ElEta);
             fChain->SetBranchAddress("ElPhi", &ElPhi, &b_ElPhi);
@@ -3861,7 +3723,18 @@ void ZJets::Init(bool hasRecoInfo, bool hasGenInfo){
             fChain->SetBranchAddress("ElPfIsoRho", &ElPfIsoRho, &b_ElPfIsoRho); 
             fChain->SetBranchAddress("ElEtaSc", &ElEtaSc, &b_ElEtaSc);
         }
-        if (lepSel == "DMu" || lepSel == "SMu"){
+        if (lepSel == DE || lepSel == SE){
+            fChain->SetBranchAddress("ElPt", &ElPt, &b_ElPt);
+            fChain->SetBranchAddress("ElEta", &ElEta, &b_ElEta);
+            fChain->SetBranchAddress("ElPhi", &ElPhi, &b_ElPhi);
+            fChain->SetBranchAddress("ElE", &ElE, &b_ElE);
+            fChain->SetBranchAddress("ElCh", &ElCh, &b_ElCh);
+            fChain->SetBranchAddress("ElId", &ElId, &b_ElId);
+           // fChain->SetBranchAddress("patElecTrig_", &patElecTrig_, &b_patElecTrig_);
+            fChain->SetBranchAddress("ElPfIsoRho", &ElPfIsoRho, &b_ElPfIsoRho); 
+            fChain->SetBranchAddress("ElEtaSc", &ElEtaSc, &b_ElEtaSc);
+        }
+        if (lepSel == DMu || lepSel == SMu){
             fChain->SetBranchAddress("MuPt", &MuPt, &b_MuPt);
             fChain->SetBranchAddress("MuEta", &MuEta, &b_MuEta);
             fChain->SetBranchAddress("MuPhi", &MuPhi, &b_MuPhi);
@@ -3878,6 +3751,7 @@ void ZJets::Init(bool hasRecoInfo, bool hasGenInfo){
          //   fChain->SetBranchAddress("patMuonTrig_", &patMuonTrig_, &b_patMuonTrig_);
             fChain->SetBranchAddress("MuPfIso", &MuPfIso, &b_MuPfIso);
         }
+    if ( DEBUG ) cout << __LINE__ <<" initialise branches" << endl;
     }
     if (hasGenInfo){
         fChain->SetBranchAddress("GLepBarePt", &GLepBarePt, &b_GLepBarePt);
@@ -3892,6 +3766,7 @@ void ZJets::Init(bool hasRecoInfo, bool hasGenInfo){
         fChain->SetBranchAddress("GJetAk04Phi", &GJetAk04Phi, &b_GJetAk04Phi);
         fChain->SetBranchAddress("GJetAk04E", &GJetAk04E, &b_GJetAk04E);
         fChain->SetBranchAddress("GJetAk04MatchedPartonID", &GJetAk04MatchedPartonID, &b_GJetAk04MatchedPartonID);
+        fChain->SetBranchAddress("GJetAk04MatchedPartonDR", &GJetAk04MatchedPartonDR, &b_GJetAk04MatchedPartonDR);
         fChain->SetBranchAddress("GLepClosePhotPt", &GLepClosePhotPt, &b_GLepClosePhotPt);
         fChain->SetBranchAddress("GLepClosePhotEta", &GLepClosePhotEta, &b_GLepClosePhotEta);
         fChain->SetBranchAddress("GLepClosePhotPhi", &GLepClosePhotPhi, &b_GLepClosePhotPhi);
@@ -3965,13 +3840,14 @@ bool ZJets::setTriggerMask(){
     TString branchName;
     std::vector<std::string>* TrigHlt = 0;
 
-    if(lepSel == "DMu") { branchName = "TrigHltDiMu"; ourTrig_ = &TrigHltDiMu;  }
-    else if(lepSel == "DE"){ branchName = "TrigHltDiEl"; ourTrig_ = &TrigHltDiEl; }
-    else if(lepSel == "SMu"){ branchName = "TrigHltMu"; ourTrig_ = &TrigHltMu; }
-    else if(lepSel == "SE"){ branchName = "TrigHltEl"; ourTrig_ = &TrigHltEl; }
+    if(lepSel == DMu) { branchName = "TrigHltDiMu"; ourTrig_ = &TrigHltDiMu;  }
+    else if(lepSel == DE){ branchName = "TrigHltDiEl"; ourTrig_ = &TrigHltDiEl; }
+    else if(lepSel == SMu){ branchName = "TrigHltMu"; ourTrig_ = &TrigHltMu; }
+    else if(lepSel == SE){ branchName = "TrigHltEl"; ourTrig_ = &TrigHltEl; }
+    else if(lepSel == EMu){ branchName = "TrigHltMu"; ourTrig_ = &TrigHltMu; }
     else{
 	std::cerr << __FILE__ << ":" << __LINE__ << ". "
-		  << "lepSel value, '" << lepSel
+		  << "lepSel value, '" << getLepSel_string(lepSel)
 		  << "', was  not recognzed. We cannot set the trigger bits.\n\n";
 	return false;
     }

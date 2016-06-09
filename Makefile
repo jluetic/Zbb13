@@ -47,7 +47,7 @@ CXXFLAGS      += -MD -Wall
 
 # list of all source files
 SOURCES = \
-ZJets_newformat.cc ArgParser.cc variablesOfInterestZJets.cc getFilesAndHistogramsZJets.cc \
+ZJets_newformat.cc lepSel.cc ArgParser.cc variablesOfInterestZJets.cc getFilesAndHistogramsZJets.cc \
 ConfigVJets.cc HistoSetZJets.cc functions.cc UnfoldingZJets.cc \
 RecoComparison.cc PlotSettings.cc muresolution_run2.cc rochcor2015.cc doPlot.cc
 
