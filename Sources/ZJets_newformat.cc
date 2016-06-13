@@ -797,23 +797,16 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
 				bool passTest = passesBJets ;
 				//if ( !passesBJets ) continue;
 				
-				if (!EvtIsRealData && lepSel == DMu ) {
-				if ( DEBUG ){cout<< __LINE__  << " before Bchange  " << passesBJets << endl;
-    						cout << __LINE__ <<"  Random " << this_rand<< " aa " << passesBJets << "  cvs " <<  JetAk04BDiscCisvV2->at(i)  << endl;
-					}
-
-					if ( DEBUG )  cout << " EO " << SFb_out<<"    " << SFb_out << endl;
+				if (!EvtIsRealData && (lepSel == DMu || lepSel == EMu)) {
 					BTagModification(this_rand, JetAk04Pt->at(i), JetAk04Eta->at(i),JetAk04PartFlav->at(i), passesBJets, SFb_out, effb_out, bTagSyst);
-					if ( DEBUG ) cout << " E1 " << SFb_out<<"    " << SFb_out << "  pt " << JetAk04Pt->at(i) <<endl;
-					 if ( passesBJets != passTest )  cout << " after Bchange  " << passesBJets << " old " << passTest << endl;
 				}
-				else SFb_out = 1;
+				else SFb_out = 1.;
 	
 				if ( DEBUG && passesBJets != passTest ) cout << " after Bchange  " << passesBJets << " old " << passTest << endl;
 			
 			
 				// END BJETS !!!
-				jetStruct jet(JetAk04Pt->at(i), JetAk04Eta->at(i), JetAk04Phi->at(i), JetAk04E->at(i), JetAk04PartFlav->at(i) , JetAk04BDiscCisvV2->at(i), passesBJets,SFb_out);
+				jetStruct jet(JetAk04Pt->at(i), JetAk04Eta->at(i), JetAk04Phi->at(i), JetAk04E->at(i), JetAk04PartFlav->at(i) , JetAk04BDiscCisvV2->at(i), passesBJets, SFb_out);
 
 				//-- apply jet energy scale uncertainty (need to change the scale when initiating the object)
 				double jetEnergyCorr = 0.; 
@@ -977,9 +970,11 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
 				if ( evFlav == 5 ) nGoodBJets_b++; // b-quark
 				else if ( evFlav == 4 ) nGoodBJets_c++; // C-quark
 				else nGoodBJets_l++;
-				cout << "B:" << nGoodBJets_b << " C: " << nGoodBJets_c << " L: " << nGoodBJets_l << endl;
+				//cout << "B:" << nGoodBJets_b << " C: " << nGoodBJets_c << " L: " << nGoodBJets_l << endl;
 			}
 		}
+		//std::cout << weightJetEventProducer(jets,b_tag_cut) << "	" << nGoodBJets << std::endl;
+
 	}
 
         if (hasGenInfo){
@@ -2404,10 +2399,17 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
 
             //=======================================================================================================//
 //BJets JL
+
 	ZNGoodBJets_Zexc->Fill(nGoodBJets, weightBJets);
-	ZNGoodBJets_Zexc_b->Fill(nGoodBJets_b, weightBJets);
-	ZNGoodBJets_Zexc_c->Fill(nGoodBJets_c, weightBJets);
-	ZNGoodBJets_Zexc_l->Fill(nGoodBJets_l, weightBJets);
+	if (nGoodBJets_b>0) { 
+		ZNGoodBJets_Zexc_b->Fill(nGoodBJets_b, weightBJets);
+	}
+	else if (nGoodBJets_c>0) {
+		ZNGoodBJets_Zexc_c->Fill(nGoodBJets_c, weightBJets);
+	}
+	else {
+		ZNGoodBJets_Zexc_l->Fill(nGoodBJets_l, weightBJets);
+	}
 	ZNGoodBJetsNVtx_Zexc->Fill(nGoodBJets, EvtVtxCnt, weightBJets);
 	for(auto &jet: jets)
 		CSV->Fill(jet.BDiscCisvV2,weightBJets);

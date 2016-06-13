@@ -388,11 +388,9 @@ void bestTwoJetsCandidatesPhi(vector<jetStruct> jets, pair<TLorentzVector, TLore
 void BTagModification(double randNumber, double pt, double eta, int jetFlavour, bool &passBJets, double &SF_out, double &eff_out, int systDir=0 )
 //double BTagModification(double randNumber, double pt, double eta, int jetFlavour, bool &passBJets )
 {
-    //cout << " usli smo u BTagModification " << endl;
     SF_out = 0. ;
      
     if (abs(jetFlavour) == 5) {
-
 //MWP
         float SFb = 0.934588*((1.+(0.00678184*pt))/(1.+(0.00627144*pt))); 
         if (pt < 30.) SFb = 0.934588*((1.+(0.00678184*30))/(1.+(0.00627144*30))); 
@@ -426,9 +424,8 @@ void BTagModification(double randNumber, double pt, double eta, int jetFlavour, 
     }
     // ---------------- For Real C-jets--------------- //
     else if (abs(jetFlavour) == 4) {
-// WTF !!!! FIX FIX FIX
 	float SFc = 0.934588*((1.+(0.00678184*pt))/(1.+(0.00627144*pt))); 
-        float SFc_error = 0.;
+    float SFc_error = 0.;
 
 	if (systDir == 0) SF_out = SFc ;
 
@@ -468,7 +465,6 @@ void BTagModification(double randNumber, double pt, double eta, int jetFlavour, 
 		SFlight_down=((0.964857+(-2.19898e-05*pt))+(4.74117e-07*(pt*pt)))+(-3.36548e-10*(pt*(pt*pt)));
 		SFlight_up=((1.05392+(0.000944135*pt))+(-1.73386e-06*(pt*pt)))+(1.04242e-09*(pt*(pt*pt)));
 	}
-
 	else if (abs(eta) > 1.6 && abs(eta)< 2.4){ 
 		SFlight=((0.955798+(0.00146058*pt))+(-3.76689e-06*(pt*pt)))+(2.39196e-09*(pt*(pt*pt))); 	
 		SFlight_down=((0.910086+(0.00116371*pt))+(-3.02747e-06*(pt*pt)))+(1.86906e-09*(pt*(pt*pt)));
@@ -493,26 +489,26 @@ double weightJetEventProducer(std::vector <jetStruct> &Jetovi, double cut){
 	double w1=0.;
 	double w2=1.;
 	int cntB=0;
+	int j0=0,j1=0,j2=0;
 
 	// 0 b-jets
 	for (auto jet:Jetovi){
 		w0 *=(1- jet.SFb);
 		if (jet.BDiscCisvV2>cut) cntB++;
 	}
-	if (cntB==0) return w0;
-	// 1 b jet
+	if (cntB==0) return 1.;
+	if (cntB==1) return (1.-w0);
+	// 1 b-jet
 	for (auto &jet:Jetovi){
 		double w1temp=1;
 		for (auto &jet1:Jetovi){
- 			if (&jet != &jet1 ) w1temp *=(1- jet1.SFb); 
+			if (&jet != &jet1 ) w1temp *=(1.- jet1.SFb); 
 			else w1temp*=jet.SFb;
 		}
 		w1 += w1temp;
 	}
-	if (cntB == 1) {
-		return w1;}
 	// 2 b-jets
-	w2=1-w0-w1;
+	w2=1.-w0-w1;
 	if (cntB > 1) return w2;
 	return 1;
 }
