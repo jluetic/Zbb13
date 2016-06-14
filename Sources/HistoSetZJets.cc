@@ -512,11 +512,13 @@ HistoSetZJets::HistoSetZJets(TString leptonFlavor)
 	mindRofJetToZ_Zpt100le200_Zexc1jet  = newTH1D("mindRofJetToZ_Zpt100le200_Zexc1jet","Minimum dR between jet and Z boson for (N_{jets} #eq 1) 100.gt.ZpT.le.200","min dR(jet,Z)", 100, 0, 4.);
 	mindRofJetToZ_Zpt200le400_Zexc1jet  = newTH1D("mindRofJetToZ_Zpt200le400_Zexc1jet","Minimum dR between jet and Z boson for (N_{jets} #eq 1) 200.gt.ZpT.le.400 ","min dR(jet,Z)", 100, 0, 4.);
 	mindRofJetToZ_Zptgt400_Zexc1jet  = newTH1D("mindRofJetToZ_Zptgt400_Zexc1jet","Minimum dR between jet and Z boson for (N_{jets} #eq 1) ZPt ge 400","min dR(jet,Z)", 100, 0, 4.);
-        // the above but now with cuts on jet Pt
-        mindRofJetToZ_JetPtle100_Zexc1jet = newTH1D("mindRofJetToZ_JetPtle100_Zexc1jet","Minimum dR between jet and Z boson for (N_{jets} #eq 1) JetpT le 100","min dR(jet,Z)", 100, 0, 4.); 
-        mindRofJetToZ_JetPt100le200_Zexc1jet = newTH1D("mindRofJetToZ_JetPt100le200_Zexc1jet","Minimum dR between jet and Z boson for (N_{jets} #eq 1) JetpT le 100","min dR(jet,Z)", 100, 0, 4.); 
-        mindRofJetToZ_JetPt200le400_Zexc1jet = newTH1D("mindRofJetToZ_JetPt200le400_Zexc1jet","Minimum dR between jet and Z boson for (N_{jets} #eq 1) JetpT le 100","min dR(jet,Z)", 100, 0, 4.); 
-        mindRofJetToZ_JetPtgt400_Zexc1jet = newTH1D("mindRofJetToZ_JetPtgt400_Zexc1jet","Minimum dR between jet and Z boson for (N_{jets} #eq 1) JetpT le 100","min dR(jet,Z)", 100, 0, 4.); 
+
+	// the above but now with cuts on jet Pt
+	mindRofJetToZ_JetPtle100_Zexc1jet = newTH1D("mindRofJetToZ_JetPtle100_Zexc1jet","Minimum dR between jet and Z boson for (N_{jets} #eq 1) JetpT le 100","min dR(jet,Z)", 100, 0, 4.); 
+	mindRofJetToZ_JetPt100le200_Zexc1jet = newTH1D("mindRofJetToZ_JetPt100le200_Zexc1jet","Minimum dR between jet and Z boson for (N_{jets} #eq 1) JetpT le 100","min dR(jet,Z)", 100, 0, 4.); 
+	mindRofJetToZ_JetPt200le400_Zexc1jet = newTH1D("mindRofJetToZ_JetPt200le400_Zexc1jet","Minimum dR between jet and Z boson for (N_{jets} #eq 1) JetpT le 100","min dR(jet,Z)", 100, 0, 4.); 
+	mindRofJetToZ_JetPtgt400_Zexc1jet = newTH1D("mindRofJetToZ_JetPtgt400_Zexc1jet","Minimum dR between jet and Z boson for (N_{jets} #eq 1) JetpT le 100","min dR(jet,Z)", 100, 0, 4.); 
+
 	// min dR between inc 1 jets and Z
 	mindRofJetToZ_Zinc1jet  = newTH1D("mindRofJetToZ_Zinc1jet","Minimum dR between jet and Z boson for (N_{jets} #geq 1)","min dR(jet,Z)", 100, 0, 4.);
 	mindRofJetToZ_Zptle100_Zinc1jet  = newTH1D("mindRofJetToZ_Zptle100_Zinc1jet","Minimum dR between jet and Z boson for (N_{jets} #geq 1) ZpT le 100","min dR(jet,Z)", 100, 0, 4.);
@@ -532,9 +534,6 @@ HistoSetZJets::HistoSetZJets(TString leptonFlavor)
 	METPt_Zinc0jet = newTH1D("METPt_Zinc0jet","MET Pt distribution in inc0 jet", "MET Pt",100, 0.,1000. );
 	METE_Zinc1jet = newTH1D("MET_Zinc1jet","MET E distribution in inc1 jet","MET", 100, 0.,1000.);
 	METPt_Zinc1jet = newTH1D("METPt_Zinc1jet","MET Pt distribution in inc1 jet", "MET Pt",100, 0.,1000. );
-
-
-
 
 	// INC 2 JETS CASE
 	METE_Zinc2jet = newTH1D("METE_Zinc2jet","MET E distribution in inc2 jet", "MET",100, 0.,1000. ); 
@@ -650,18 +649,11 @@ HistoSetZJets::HistoSetZJets(TString leptonFlavor)
 	ZNGoodBJets_Zexc = newTH1D("ZNGoodBJets_Zexc","B Jet Multiplicity (excl.)", "N_{jets}", 5, -0.5, 4.5);
 	ZNGoodBJets_Zinc = newTH1D("ZNGoodBJets_Zinc","B Jet Multiplicity (incl.)", "N_{jets}", 5, -0.5, 4.5);
 
-
-
-
-
-
-
-
-	ZptBJets_Zexc1Bjet = newTH1D("ZptBJets_Zexc1B","Zpt (exc 1 b-jet)", "Zpt",  nbins, 0, maxX  );
+	ZptBJets_Zexc1Bjet = newTH1D("ZptBJets_Zexc1B","Zpt (exc 1 b-jet)", "Zpt",  nbins, 0, maxX);
 	ZptBJets_Zexc2Bjet = newTH1D("ZptBJets_Zexc2B","Zpt (exc 2 b-jet)", "Zpt",  nbins, 0, maxX);
 	ZptBJets_Zinc1Bjet = newTH1D("ZptBJets_Zinc1B","Zpt (inc 1 b-jet)", "Zpt",  nbins, 0, maxX);
-        ZptBJets_Zinc2Bjet = newTH1D("ZptBJets_Zinc2B","Zpt (inc 2 b-jet)", "Zpt",  nbins, 0, maxX);
-        ZptBJets_Zinc3Bjet = newTH1D("ZptBJets_Zinc3B","Zpt (inc 3 b-jet)", "Zpt",  nbins, 0, maxX);
+	ZptBJets_Zinc2Bjet = newTH1D("ZptBJets_Zinc2B","Zpt (inc 2 b-jet)", "Zpt",  nbins, 0, maxX);
+	ZptBJets_Zinc3Bjet = newTH1D("ZptBJets_Zinc3B","Zpt (inc 3 b-jet)", "Zpt",  nbins, 0, maxX);
 	BJetsMass_Zinc2Bjet= newTH1D("BJetsMass_Zinc2", "b-jet mass inc 2 b-jet ","b jet mass",  nbins, 0, maxX);
 	FirstBJetPt_Zinc1Bjet = newTH1D("FirstBJetPt_Zinc1B","b-jet pt (inc 1 b jet)","b-jet pt", nbins, 0, maxX);
 	FirstBJetPt_Zinc2Bjet = newTH1D("FirstBJetPt_Zinc2B","b-jet pt (inc 2 b jet)","b-jet pt", nbins, 0, maxX);
@@ -671,13 +663,39 @@ HistoSetZJets::HistoSetZJets(TString leptonFlavor)
 	FirstBJetPt_Zexc2Bjet = newTH1D("FirstBJetPt_Zexc2B","b-jet pt (inc 2 b jet)","b-jet pt", nbins, 0, maxX);
 	SecondBJetPt_Zexc2Bjet = newTH1D("SecondBJetPt_Zexc2B","b-jet pt (inc 2 b jet)","b-jet pt", nbins, 0, maxX);
 
+	HtBJets_Zexc1Bjet = newTH1D("HtBJets_Zexc1B","Ht (exc 1 b-jet)", "Ht",  nbins, 0, maxX);
+	HtBJets_Zexc2Bjet = newTH1D("HtBJets_Zexc2B","Ht (exc 2 b-jet)", "Ht",  nbins, 0, maxX);
+	HtBJets_Zinc1Bjet = newTH1D("HtBJets_Zinc1B","Ht (inc 1 b-jet)", "Ht",  nbins, 0, maxX);
+	HtBJets_Zinc2Bjet = newTH1D("HtBJets_Zinc2B","Ht (inc 2 b-jet)", "Ht",  nbins, 0, maxX);
+
+	ZMassBJets_Zexc1Bjet = newTH1D("ZMassBJets_Zexc1B","Ht (exc 1 b-jet)", "Z mass",  nbins, 0, maxX);
+	ZMassBJets_Zexc2Bjet = newTH1D("ZMassBJets_Zexc2B","Ht (exc 2 b-jet)", "Z mass",  nbins, 0, maxX);
+	ZMassBJets_Zinc1Bjet = newTH1D("ZMassBJets_Zinc1B","Ht (inc 1 b-jet)", "Z mass",  nbins, 0, maxX);
+	ZMassBJets_Zinc2Bjet = newTH1D("ZMassBJets_Zinc2B","Ht (inc 2 b-jet)", "Z mass",  nbins, 0, maxX);
+
+	mindRBJetToZ_Zexc1Bjet = newTH1D("mindRBJetToZ_Zexc1Bjet","dR(Z,b) (exc 1 b jet)","#DeltaR(Z,b)", nbins, 0, 5);
+	mindRBJetToZ_Zexc2Bjet = newTH1D("mindRBJetToZ_Zexc2Bjet","dR(Z,b) (exc 2 b jet)","#DeltaR(Z,b)", nbins, 0, 5);
+	maxdRBJetToZ_Zexc2Bjet = newTH1D("maxdRBJetToZ_Zexc2Bjet","dR(Z,b) (exc 2 b jet)","#DeltaR(Z,b)", nbins, 0, 5);
+	mindRBJetToZ_Zinc1Bjet = newTH1D("mindRBJetToZ_Zinc1Bjet","dR(Z,b) (inc 1 b jet)","#DeltaR(Z,b)", nbins, 0, 5);
+	mindRBJetToZ_Zinc2Bjet = newTH1D("mindRBJetToZ_Zinc2Bjet","dR(Z,b) (inc 2 b jet)","#DeltaR(Z,b)", nbins, 0, 5);
+	maxdRBJetToZ_Zinc2Bjet = newTH1D("maxdRBJetToZ_Zinc2Bjet","dR(Z,b) (inc 2 b jet)","#DeltaR(Z,b)", nbins, 0, 5);
+	mindRBJets_Zinc2Bjet = newTH1D("mindRBJets_Zinc2Bjet","dR(Z,b) (inc 2 b jet)","#DeltaR(b,b)", nbins, 0, 5);
+	mindRBJets_Zexc2Bjet = newTH1D("mindRBJets_Zexc2Bjet","dR(Z,b) (exc 2 b jet)","#DeltaR(b,b)", nbins, 0, 5);
+
+	mindPhiBJetToZ_Zexc1Bjet = newTH1D("mindPhiBJetToZ_Zexc1Bjet","dPhi(Z,b) (exc 1 b jet)","#Delta#phi(Z,b)", nbins, 0, 5);
+	mindPhiBJetToZ_Zexc2Bjet = newTH1D("mindPhiBJetToZ_Zexc2Bjet","dPhi(Z,b) (exc 2 b jet)","#Delta#phi(Z,b)", nbins, 0, 5);
+	mindPhiBJetToZ_Zinc1Bjet = newTH1D("mindPhiBJetToZ_Zinc1Bjet","dPhi(Z,b) (inc 1 b jet)","#Delta#phi(Z,b)", nbins, 0, 5);
+	mindPhiBJetToZ_Zinc2Bjet = newTH1D("mindPhiBJetToZ_Zinc2Bjet","dPhi(Z,b) (inc 2 b jet)","#Delta#phi(Z,b)", nbins, 0, 5);
+	mindPhiBJets_Zinc2Bjet = newTH1D("mindPhiBJets_Zinc2Bjet","dPhi(Z,b) (inc 2 b jet)","#Delta#phi(b,b)", nbins, 0, 5);
+	mindPhiBJets_Zexc2Bjet = newTH1D("mindPhiBJets_Zexc2Bjet","dPhi(Z,b) (exc 2 b jet)","#Delta#phi(b,b)", nbins, 0, 5);
+
 	ZNGoodBJets_Zexc_l = newTH1D("ZNGoodBJets_Zexc_l","B Jet Multiplicity (excl.) ", "N_{jets}", 5, -0.5, 4.5);
 	ZNGoodBJets_Zinc_l = newTH1D("ZNGoodBJets_Zinc_l","B Jet Multiplicity (incl.)", "N_{jets}", 5, -0.5, 4.5);
 	ZptBJets_Zexc1Bjet_l = newTH1D("ZptBJets_Zexc1B_l","Zpt (exc 1 b-jet)", "Zpt",  nbins, 0, maxX  );
 	ZptBJets_Zexc2Bjet_l = newTH1D("ZptBJets_Zexc2B_l","Zpt (exc 2 b-jet)", "Zpt",  nbins, 0, maxX);
 	ZptBJets_Zinc1Bjet_l = newTH1D("ZptBJets_Zinc1B_l","Zpt (inc 1 b-jet)", "Zpt",  nbins, 0, maxX);
-        ZptBJets_Zinc2Bjet_l = newTH1D("ZptBJets_Zinc2B_l","Zpt (inc 2 b-jet)", "Zpt",  nbins, 0, maxX);
-        ZptBJets_Zinc3Bjet_l = newTH1D("ZptBJets_Zinc3B_l","Zpt (inc 3 b-jet)", "Zpt",  nbins, 0, maxX);
+	ZptBJets_Zinc2Bjet_l = newTH1D("ZptBJets_Zinc2B_l","Zpt (inc 2 b-jet)", "Zpt",  nbins, 0, maxX);
+	ZptBJets_Zinc3Bjet_l = newTH1D("ZptBJets_Zinc3B_l","Zpt (inc 3 b-jet)", "Zpt",  nbins, 0, maxX);
 	BJetsMass_Zinc2Bjet_l = newTH1D("BJetsMass_Zinc2_l", "b-jet mass inc 2 b-jet ","b jet mass",  nbins, 0, maxX);
 	FirstBJetPt_Zinc1Bjet_l = newTH1D("FirstBJetPt_Zinc1B_l","b-jet pt (inc 1 b jet)","b-jet pt", nbins, 0, maxX);
 	FirstBJetPt_Zinc2Bjet_l = newTH1D("FirstBJetPt_Zinc2B_l","b-jet pt (inc 2 b jet)","b-jet pt", nbins, 0, maxX);
@@ -686,14 +704,40 @@ HistoSetZJets::HistoSetZJets(TString leptonFlavor)
 	FirstBJetPt_Zexc1Bjet_l = newTH1D("FirstBJetPt_Zexc1B_l","b-jet pt (inc 1 b jet)","b-jet pt", nbins, 0, maxX);
 	FirstBJetPt_Zexc2Bjet_l = newTH1D("FirstBJetPt_Zexc2B_l","b-jet pt (inc 2 b jet)","b-jet pt", nbins, 0, maxX);
 	SecondBJetPt_Zexc2Bjet_l = newTH1D("SecondBJetPt_Zexc2B_l","b-jet pt (inc 2 b jet)","b-jet pt", nbins, 0, maxX);
+
+	HtBJets_Zexc1Bjet_l = newTH1D("HtBJets_Zexc1B_l","Ht (exc 1 b-jet)", "Ht",  nbins, 0, maxX);
+	HtBJets_Zexc2Bjet_l = newTH1D("HtBJets_Zexc2B_l","Ht (exc 2 b-jet)", "Ht",  nbins, 0, maxX);
+	HtBJets_Zinc1Bjet_l = newTH1D("HtBJets_Zinc1B_l","Ht (inc 1 b-jet)", "Ht",  nbins, 0, maxX);
+	HtBJets_Zinc2Bjet_l = newTH1D("HtBJets_Zinc2B_l","Ht (inc 2 b-jet)", "Ht",  nbins, 0, maxX);
+
+	ZMassBJets_Zexc1Bjet_l = newTH1D("ZMassBJets_Zexc1B_l","Ht (exc 1 b-jet)", "Z mass",  nbins, 0, maxX);
+	ZMassBJets_Zexc2Bjet_l = newTH1D("ZMassBJets_Zexc2B_l","Ht (exc 2 b-jet)", "Z mass",  nbins, 0, maxX);
+	ZMassBJets_Zinc1Bjet_l = newTH1D("ZMassBJets_Zinc1B_l","Ht (inc 1 b-jet)", "Z mass",  nbins, 0, maxX);
+	ZMassBJets_Zinc2Bjet_l = newTH1D("ZMassBJets_Zinc2B_l","Ht (inc 2 b-jet)", "Z mass",  nbins, 0, maxX);
+
+	mindRBJetToZ_Zexc1Bjet_l = newTH1D("mindRBJetToZ_Zexc1Bjet_l","dR(Z,b) (exc 1 b jet)","#DeltaR(Z,b)", nbins, 0, 5);
+	mindRBJetToZ_Zexc2Bjet_l = newTH1D("mindRBJetToZ_Zexc2Bjet_l","dR(Z,b) (exc 2 b jet)","#DeltaR(Z,b)", nbins, 0, 5);
+	maxdRBJetToZ_Zexc2Bjet_l = newTH1D("maxdRBJetToZ_Zexc2Bjet_l","dR(Z,b) (exc 2 b jet)","#DeltaR(Z,b)", nbins, 0, 5);
+	mindRBJetToZ_Zinc1Bjet_l = newTH1D("mindRBJetToZ_Zinc1Bjet_l","dR(Z,b) (inc 1 b jet)","#DeltaR(Z,b)", nbins, 0, 5);
+	mindRBJetToZ_Zinc2Bjet_l = newTH1D("mindRBJetToZ_Zinc2Bjet_l","dR(Z,b) (inc 2 b jet)","#DeltaR(Z,b)", nbins, 0, 5);
+	maxdRBJetToZ_Zinc2Bjet_l = newTH1D("maxdRBJetToZ_Zinc2Bjet_l","dR(Z,b) (inc 2 b jet)","#DeltaR(Z,b)", nbins, 0, 5);
+	mindRBJets_Zinc2Bjet_l = newTH1D("mindRBJets_Zinc2Bjet_l","dR(Z,b) (inc 2 b jet)","#DeltaR(b,b)", nbins, 0, 5);
+	mindRBJets_Zexc2Bjet_l = newTH1D("mindRBJets_Zexc2Bjet_l","dR(Z,b) (exc 2 b jet)","#DeltaR(b,b)", nbins, 0, 5);
+
+	mindPhiBJetToZ_Zexc1Bjet_l = newTH1D("mindPhiBJetToZ_Zexc1Bjet_l","dPhi(Z,b) (exc 1 b jet)","#Delta#phi(Z,b)", nbins, 0, 5);
+	mindPhiBJetToZ_Zexc2Bjet_l = newTH1D("mindPhiBJetToZ_Zexc2Bjet_l","dPhi(Z,b) (exc 2 b jet)","#Delta#phi(Z,b)", nbins, 0, 5);
+	mindPhiBJetToZ_Zinc1Bjet_l = newTH1D("mindPhiBJetToZ_Zinc1Bjet_l","dPhi(Z,b) (inc 1 b jet)","#Delta#phi(Z,b)", nbins, 0, 5);
+	mindPhiBJetToZ_Zinc2Bjet_l = newTH1D("mindPhiBJetToZ_Zinc2Bjet_l","dPhi(Z,b) (inc 2 b jet)","#Delta#phi(Z,b)", nbins, 0, 5);
+	mindPhiBJets_Zinc2Bjet_l = newTH1D("mindPhiBJets_Zinc2Bjet_l","dPhi(Z,b) (inc 2 b jet)","#Delta#phi(b,b)", nbins, 0, 5);
+	mindPhiBJets_Zexc2Bjet_l = newTH1D("mindPhiBJets_Zexc2Bjet_l","dPhi(Z,b) (exc 2 b jet)","#Delta#phi(b,b)", nbins, 0, 5);
 	
 	ZNGoodBJets_Zexc_c = newTH1D("ZNGoodBJets_Zexc_c","B Jet Multiplicity (excl.)", "N_{jets}", 5, -0.5, 4.5);
 	ZNGoodBJets_Zinc_c = newTH1D("ZNGoodBJets_Zinc_c","B Jet Multiplicity (incl.)", "N_{jets}", 5, -0.5, 4.5);
 	ZptBJets_Zexc1Bjet_c = newTH1D("ZptBJets_Zexc1B_c","Zpt (exc 1 b-jet)", "Zpt",  nbins, 0, maxX);
 	ZptBJets_Zexc2Bjet_c = newTH1D("ZptBJets_Zexc2B_c","Zpt (exc 2 b-jet)", "Zpt",  nbins, 0, maxX);
 	ZptBJets_Zinc1Bjet_c = newTH1D("ZptBJets_Zinc1B_c","Zpt (inc 1 b-jet)", "Zpt",  nbins, 0, maxX);
-        ZptBJets_Zinc2Bjet_c = newTH1D("ZptBJets_Zinc2B_c","Zpt (inc 2 b-jet)", "Zpt",  nbins, 0, maxX);
-        ZptBJets_Zinc3Bjet_c = newTH1D("ZptBJets_Zinc3B_c","Zpt (inc 3 b-jet)", "Zpt",  nbins, 0, maxX);
+	ZptBJets_Zinc2Bjet_c = newTH1D("ZptBJets_Zinc2B_c","Zpt (inc 2 b-jet)", "Zpt",  nbins, 0, maxX);
+	ZptBJets_Zinc3Bjet_c = newTH1D("ZptBJets_Zinc3B_c","Zpt (inc 3 b-jet)", "Zpt",  nbins, 0, maxX);
 	BJetsMass_Zinc2Bjet_c = newTH1D("BJetsMass_Zinc2_c", "b-jet mass inc 2 b-jet ","b jet mass",  nbins, 0, maxX);
 	FirstBJetPt_Zinc1Bjet_c = newTH1D("FirstBJetPt_Zinc1B_c","b-jet pt (inc 1 b jet)","b-jet pt", nbins, 0, maxX);
 	FirstBJetPt_Zinc2Bjet_c = newTH1D("FirstBJetPt_Zinc2B_c","b-jet pt (inc 2 b jet)","b-jet pt", nbins, 0, maxX);
@@ -703,13 +747,39 @@ HistoSetZJets::HistoSetZJets(TString leptonFlavor)
 	FirstBJetPt_Zexc2Bjet_c = newTH1D("FirstBJetPt_Zexc2B_c","b-jet pt (inc 2 b jet)","b-jet pt", nbins, 0, maxX);
 	SecondBJetPt_Zexc2Bjet_c = newTH1D("SecondBJetPt_Zexc2B_c","b-jet pt (inc 2 b jet)","b-jet pt", nbins, 0, maxX);
 	
+	HtBJets_Zexc1Bjet_c = newTH1D("HtBJets_Zexc1B_c","Ht (exc 1 b-jet)", "Ht",  nbins, 0, maxX);
+	HtBJets_Zexc2Bjet_c = newTH1D("HtBJets_Zexc2B_c","Ht (exc 2 b-jet)", "Ht",  nbins, 0, maxX);
+	HtBJets_Zinc1Bjet_c = newTH1D("HtBJets_Zinc1B_c","Ht (inc 1 b-jet)", "Ht",  nbins, 0, maxX);
+	HtBJets_Zinc2Bjet_c = newTH1D("HtBJets_Zinc2B_c","Ht (inc 2 b-jet)", "Ht",  nbins, 0, maxX);
+
+	ZMassBJets_Zexc1Bjet_c = newTH1D("ZMassBJets_Zexc1B_c","Ht (exc 1 b-jet)", "Z mass",  nbins, 0, maxX);
+	ZMassBJets_Zexc2Bjet_c = newTH1D("ZMassBJets_Zexc2B_c","Ht (exc 2 b-jet)", "Z mass",  nbins, 0, maxX);
+	ZMassBJets_Zinc1Bjet_c = newTH1D("ZMassBJets_Zinc1B_c","Ht (inc 1 b-jet)", "Z mass",  nbins, 0, maxX);
+	ZMassBJets_Zinc2Bjet_c = newTH1D("ZMassBJets_Zinc2B_c","Ht (inc 2 b-jet)", "Z mass",  nbins, 0, maxX);
+
+	mindRBJetToZ_Zexc1Bjet_c = newTH1D("mindRBJetToZ_Zexc1Bjet_c","dR(Z,b) (exc 1 b jet)","#DeltaR(Z,b)", nbins, 0, 5);
+	mindRBJetToZ_Zexc2Bjet_c = newTH1D("mindRBJetToZ_Zexc2Bjet_c","dR(Z,b) (exc 2 b jet)","#DeltaR(Z,b)", nbins, 0, 5);
+	maxdRBJetToZ_Zexc2Bjet_c = newTH1D("maxdRBJetToZ_Zexc2Bjet_c","dR(Z,b) (exc 2 b jet)","#DeltaR(Z,b)", nbins, 0, 5);
+	mindRBJetToZ_Zinc1Bjet_c = newTH1D("mindRBJetToZ_Zinc1Bjet_c","dR(Z,b) (inc 1 b jet)","#DeltaR(Z,b)", nbins, 0, 5);
+	mindRBJetToZ_Zinc2Bjet_c = newTH1D("mindRBJetToZ_Zinc2Bjet_c","dR(Z,b) (inc 2 b jet)","#DeltaR(Z,b)", nbins, 0, 5);
+	maxdRBJetToZ_Zinc2Bjet_c = newTH1D("maxdRBJetToZ_Zinc2Bjet_c","dR(Z,b) (inc 2 b jet)","#DeltaR(Z,b)", nbins, 0, 5);
+	mindRBJets_Zinc2Bjet_c = newTH1D("mindRBJets_Zinc2Bjet_c","dR(Z,b) (inc 2 b jet)","#DeltaR(b,b)", nbins, 0, 5);
+	mindRBJets_Zexc2Bjet_c = newTH1D("mindRBJets_Zexc2Bjet_c","dR(Z,b) (exc 2 b jet)","#DeltaR(b,b)", nbins, 0, 5);
+
+	mindPhiBJetToZ_Zexc1Bjet_c = newTH1D("mindPhiBJetToZ_Zexc1Bjet_c","dPhi(Z,b) (exc 1 b jet)","#Delta#phi(Z,b)", nbins, 0, 5);
+	mindPhiBJetToZ_Zexc2Bjet_c = newTH1D("mindPhiBJetToZ_Zexc2Bjet_c","dPhi(Z,b) (exc 2 b jet)","#Delta#phi(Z,b)", nbins, 0, 5);
+	mindPhiBJetToZ_Zinc1Bjet_c = newTH1D("mindPhiBJetToZ_Zinc1Bjet_c","dPhi(Z,b) (inc 1 b jet)","#Delta#phi(Z,b)", nbins, 0, 5);
+	mindPhiBJetToZ_Zinc2Bjet_c = newTH1D("mindPhiBJetToZ_Zinc2Bjet_c","dPhi(Z,b) (inc 2 b jet)","#Delta#phi(Z,b)", nbins, 0, 5);
+	mindPhiBJets_Zinc2Bjet_c = newTH1D("mindPhiBJets_Zinc2Bjet_c","dPhi(Z,b) (inc 2 b jet)","#Delta#phi(b,b)", nbins, 0, 5);
+	mindPhiBJets_Zexc2Bjet_c = newTH1D("mindPhiBJets_Zexc2Bjet_c","dPhi(Z,b) (exc 2 b jet)","#Delta#phi(b,b)", nbins, 0, 5);
+
 	ZNGoodBJets_Zexc_b = newTH1D("ZNGoodBJets_Zexc_b","B Jet Multiplicity (excl.)", "N_{jets}", 5, -0.5, 4.5);
 	ZNGoodBJets_Zinc_b = newTH1D("ZNGoodBJets_Zinc_b","B Jet Multiplicity (incl.)", "N_{jets}", 5, -0.5, 4.5);
 	ZptBJets_Zexc1Bjet_b = newTH1D("ZptBJets_Zexc1B_b","Zpt (exc 1 b-jet)", "Zpt",  nbins, 0, maxX);
 	ZptBJets_Zexc2Bjet_b = newTH1D("ZptBJets_Zexc2B_b","Zpt (exc 2 b-jet)", "Zpt",  nbins, 0, maxX);
 	ZptBJets_Zinc1Bjet_b = newTH1D("ZptBJets_Zinc1B_b","Zpt (inc 1 b-jet)", "Zpt",  nbins, 0, maxX);
-        ZptBJets_Zinc2Bjet_b = newTH1D("ZptBJets_Zinc2B_b","Zpt (inc 2 b-jet)", "Zpt",  nbins, 0, maxX);
-        ZptBJets_Zinc3Bjet_b = newTH1D("ZptBJets_Zinc3B_b","Zpt (inc 3 b-jet)", "Zpt",  nbins, 0, maxX);
+	ZptBJets_Zinc2Bjet_b = newTH1D("ZptBJets_Zinc2B_b","Zpt (inc 2 b-jet)", "Zpt",  nbins, 0, maxX);
+	ZptBJets_Zinc3Bjet_b = newTH1D("ZptBJets_Zinc3B_b","Zpt (inc 3 b-jet)", "Zpt",  nbins, 0, maxX);
 	BJetsMass_Zinc2Bjet_b = newTH1D("BJetsMass_Zinc2_b", "b-jet mass inc 2 b-jet ","b jet mass",  nbins, 0, maxX);
 	FirstBJetPt_Zinc1Bjet_b = newTH1D("FirstBJetPt_Zinc1B_b","b-jet pt (inc 1 b jet)","b-jet pt", nbins, 0, maxX);
 	FirstBJetPt_Zinc2Bjet_b = newTH1D("FirstBJetPt_Zinc2B_b","b-jet pt (inc 2 b jet)","b-jet pt", nbins, 0, maxX);
@@ -718,30 +788,56 @@ HistoSetZJets::HistoSetZJets(TString leptonFlavor)
 	FirstBJetPt_Zexc1Bjet_b = newTH1D("FirstBJetPt_Zexc1B_b","b-jet pt (inc 1 b jet)","b-jet pt", nbins, 0, maxX);
 	FirstBJetPt_Zexc2Bjet_b = newTH1D("FirstBJetPt_Zexc2B_b","b-jet pt (inc 2 b jet)","b-jet pt", nbins, 0, maxX);
 	SecondBJetPt_Zexc2Bjet_b = newTH1D("SecondBJetPt_Zexc2B_b","b-jet pt (inc 2 b jet)","b-jet pt", nbins, 0, maxX);
+
+	HtBJets_Zexc1Bjet_b = newTH1D("HtBJets_Zexc1B_b","Ht (exc 1 b-jet)", "Ht",  nbins, 0, maxX);
+	HtBJets_Zexc2Bjet_b = newTH1D("HtBJets_Zexc2B_b","Ht (exc 2 b-jet)", "Ht",  nbins, 0, maxX);
+	HtBJets_Zinc1Bjet_b = newTH1D("HtBJets_Zinc1B_b","Ht (inc 1 b-jet)", "Ht",  nbins, 0, maxX);
+	HtBJets_Zinc2Bjet_b = newTH1D("HtBJets_Zinc2B_b","Ht (inc 2 b-jet)", "Ht",  nbins, 0, maxX);
+
+	ZMassBJets_Zexc1Bjet_b = newTH1D("ZMassBJets_Zexc1B_b","Ht (exc 1 b-jet)", "Z mass",  nbins, 0, maxX);
+	ZMassBJets_Zexc2Bjet_b = newTH1D("ZMassBJets_Zexc2B_b","Ht (exc 2 b-jet)", "Z mass",  nbins, 0, maxX);
+	ZMassBJets_Zinc1Bjet_b = newTH1D("ZMassBJets_Zinc1B_b","Ht (inc 1 b-jet)", "Z mass",  nbins, 0, maxX);
+	ZMassBJets_Zinc2Bjet_b = newTH1D("ZMassBJets_Zinc2B_b","Ht (inc 2 b-jet)", "Z mass",  nbins, 0, maxX);
+
+	mindRBJetToZ_Zexc1Bjet_b = newTH1D("mindRBJetToZ_Zexc1Bjet_b","dR(Z,b) (exc 1 b jet)","#DeltaR(Z,b)", nbins, 0, 5);
+	mindRBJetToZ_Zexc2Bjet_b = newTH1D("mindRBJetToZ_Zexc2Bjet_b","dR(Z,b) (exc 2 b jet)","#DeltaR(Z,b)", nbins, 0, 5);
+	maxdRBJetToZ_Zexc2Bjet_b = newTH1D("maxdRBJetToZ_Zexc2Bjet_b","dR(Z,b) (exc 2 b jet)","#DeltaR(Z,b)", nbins, 0, 5);
+	mindRBJetToZ_Zinc1Bjet_b = newTH1D("mindRBJetToZ_Zinc1Bjet_b","dR(Z,b) (inc 1 b jet)","#DeltaR(Z,b)", nbins, 0, 5);
+	mindRBJetToZ_Zinc2Bjet_b = newTH1D("mindRBJetToZ_Zinc2Bjet_b","dR(Z,b) (inc 2 b jet)","#DeltaR(Z,b)", nbins, 0, 5);
+	maxdRBJetToZ_Zinc2Bjet_b = newTH1D("maxdRBJetToZ_Zinc2Bjet_b","dR(Z,b) (inc 2 b jet)","#DeltaR(Z,b)", nbins, 0, 5);
+	mindRBJets_Zinc2Bjet_b = newTH1D("mindRBJets_Zinc2Bjet_b","dR(Z,b) (inc 2 b jet)","#DeltaR(b,b)", nbins, 0, 5);
+	mindRBJets_Zexc2Bjet_b = newTH1D("mindRBJets_Zexc2Bjet_b","dR(Z,b) (exc 2 b jet)","#DeltaR(b,b)", nbins, 0, 5);
+
+	mindPhiBJetToZ_Zexc1Bjet_b = newTH1D("mindPhiBJetToZ_Zexc1Bjet_b","dPhi(Z,b) (exc 1 b jet)","#Delta#phi(Z,b)", nbins, 0, 5);
+	mindPhiBJetToZ_Zexc2Bjet_b = newTH1D("mindPhiBJetToZ_Zexc2Bjet_b","dPhi(Z,b) (exc 2 b jet)","#Delta#phi(Z,b)", nbins, 0, 5);
+	mindPhiBJetToZ_Zinc1Bjet_b = newTH1D("mindPhiBJetToZ_Zinc1Bjet_b","dPhi(Z,b) (inc 1 b jet)","#Delta#phi(Z,b)", nbins, 0, 5);
+	mindPhiBJetToZ_Zinc2Bjet_b = newTH1D("mindPhiBJetToZ_Zinc2Bjet_b","dPhi(Z,b) (inc 2 b jet)","#Delta#phi(Z,b)", nbins, 0, 5);
+	mindPhiBJets_Zinc2Bjet_b = newTH1D("mindPhiBJets_Zinc2Bjet_b","dPhi(Z,b) (inc 2 b jet)","#Delta#phi(b,b)", nbins, 0, 5);
+	mindPhiBJets_Zexc2Bjet_b = newTH1D("mindPhiBJets_Zexc2Bjet_b","dPhi(Z,b) (exc 2 b jet)","#Delta#phi(b,b)", nbins, 0, 5);
+
 	CSV = newTH1D("CSV","CSV","CSV", 20, 0, 1.);
 	bJetCSV = newTH1D("bJetCSV","bJetCSV","bJetCSV", 20, 0, 1.);
 	allJetCSV = newTH1D("allJetCSV","allJetCSV","allJetCSV", 20, 0, 1.);
 
 	METE_Zinc1Bjet = newTH1D("MET_Zinc1Bjet","MET E distribution in inc1 B-jet","MET", 23, 0.,230.);
-        METPt_Zinc1Bjet = newTH1D("METPt_Zinc1Bjet","MET Pt distribution in inc1 B-jet", "MET Pt",20, 0.,200. );
-        METE_Zinc2Bjet = newTH1D("MET_Zinc2Bjet","MET E distribution in inc2 B-jet","MET", 15, 0.,200.);
-        METPt_Zinc2Bjet = newTH1D("METPt_Zinc2Bjet","MET Pt distribution in inc2 B-jet", "MET Pt",10, 0.,200. );
-        METE_Zinc3Bjet = newTH1D("MET_Zinc3Bjet","MET E distribution in inc3 B-jet","MET", 100, 0.,200.);
-        METPt_Zinc3Bjet = newTH1D("METPt_Zinc3Bjet","MET Pt distribution in inc3 B-jet", "MET Pt",20, 0.,300. );
-	
+	METPt_Zinc1Bjet = newTH1D("METPt_Zinc1Bjet","MET Pt distribution in inc1 B-jet", "MET Pt",20, 0.,200. );
+	METE_Zinc2Bjet = newTH1D("MET_Zinc2Bjet","MET E distribution in inc2 B-jet","MET", 15, 0.,200.);
+	METPt_Zinc2Bjet = newTH1D("METPt_Zinc2Bjet","MET Pt distribution in inc2 B-jet", "MET Pt",10, 0.,200. );
+	METE_Zinc3Bjet = newTH1D("MET_Zinc3Bjet","MET E distribution in inc3 B-jet","MET", 100, 0.,200.);
+	METPt_Zinc3Bjet = newTH1D("METPt_Zinc3Bjet","MET Pt distribution in inc3 B-jet", "MET Pt",20, 0.,300. );
 
-        // gen of b-jets
-        genZNGoodBJets_Zexc = newTH1D("genZNGoodBJets_Zexc","genB Jet Multiplicity (excl.)", "N_{jets}", 5, -0.5, 4.5);
-        genZNGoodBJets_Zinc = newTH1D("genZNGoodBJets_Zinc","genB Jet Multiplicity (incl.)", "N_{jets}", 5, -0.5, 4.5);
+	// gen of b-jets
+	genZNGoodBJets_Zexc = newTH1D("genZNGoodBJets_Zexc","genB Jet Multiplicity (excl.)", "N_{jets}", 5, -0.5, 4.5);
+	genZNGoodBJets_Zinc = newTH1D("genZNGoodBJets_Zinc","genB Jet Multiplicity (incl.)", "N_{jets}", 5, -0.5, 4.5);
 	genZptBJets_Zexc1Bjet = newTH1D("genZptBJets_Zexc1B","genZpt (exc 1 b-jet)", "genZpt",  100, 0, 130.  );
-        genZptBJets_Zexc2Bjet = newTH1D("genZptBJets_Zexc2B","genZpt (exc 2 b-jet)", "genZpt",  50, 0, 130.);
-        genZptBJets_Zinc1Bjet = newTH1D("genZptBJets_Zinc1B","genZpt (inc 1 b-jet)", "genZpt",  50, 0, 130.);
-     	genZptBJets_Zinc2Bjet = newTH1D("genZptBJets_Zinc2B","genZpt (inc 2 b-jet)", "genZpt",  13, 0, 130.);
-        genZptBJets_Zinc3Bjet = newTH1D("genZptBJets_Zinc3B","genZpt (inc 3 b-jet)", "genZpt",  10, 0, 100.);
-        genBJetsMass_Zinc2Bjet= newTH1D("genBJetsMass_Zinc2", "gen b-jet mass inc 2 b-jet ","GEN b jet mass",  50, 30, 200.);
-       	genFirstBJetPt_Zinc1Bjet = newTH1D("genFirstBJetPt_Zinc1B","gen b-jet pt (inc 1 b jet)","GEN leading b-jet pt", 19, 30, 200.);
-       	genFirstBJetPt_Zinc2Bjet = newTH1D("genFirstBJetPt_Zinc2B","gen b-jet pt (inc 2 b jet)","GEN leading b-jet pt", 19, 30, 200.);
-        genSecondBJetPt_Zinc2Bjet = newTH1D("genSecondBJetPt_Zinc3B","gen b-jet pt (inc 2 b jet)","GEN subleading b-jet pt", 7, 30, 100.);
+	genZptBJets_Zexc2Bjet = newTH1D("genZptBJets_Zexc2B","genZpt (exc 2 b-jet)", "genZpt",  50, 0, 130.);
+	genZptBJets_Zinc1Bjet = newTH1D("genZptBJets_Zinc1B","genZpt (inc 1 b-jet)", "genZpt",  50, 0, 130.);
+	genZptBJets_Zinc2Bjet = newTH1D("genZptBJets_Zinc2B","genZpt (inc 2 b-jet)", "genZpt",  13, 0, 130.);
+	genZptBJets_Zinc3Bjet = newTH1D("genZptBJets_Zinc3B","genZpt (inc 3 b-jet)", "genZpt",  10, 0, 100.);
+	genBJetsMass_Zinc2Bjet= newTH1D("genBJetsMass_Zinc2", "gen b-jet mass inc 2 b-jet ","GEN b jet mass",  50, 30, 200.);
+	genFirstBJetPt_Zinc1Bjet = newTH1D("genFirstBJetPt_Zinc1B","gen b-jet pt (inc 1 b jet)","GEN leading b-jet pt", 19, 30, 200.);
+	genFirstBJetPt_Zinc2Bjet = newTH1D("genFirstBJetPt_Zinc2B","gen b-jet pt (inc 2 b jet)","GEN leading b-jet pt", 19, 30, 200.);
+	genSecondBJetPt_Zinc2Bjet = newTH1D("genSecondBJetPt_Zinc3B","gen b-jet pt (inc 2 b jet)","GEN subleading b-jet pt", 7, 30, 100.);
 
 	//METE_Zinc0Bjet = newTH1D("MET_Zinc0Bjet","MET E distribution in inc0 B-jet", "MET",100, 0.,1000. );
 	//METPt_Zinc0Bjet = newTH1D("METPt_Zinc0Bjet","MET Pt distribution in inc0 B-jet", "MET Pt",100, 0.,1000. );
