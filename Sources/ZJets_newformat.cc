@@ -396,7 +396,7 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
 			sort(vetoElectrons.begin(), vetoElectrons.end(), LepDescendingOrder);
 
 			if (lepSel == EMu){
-				if (nLeptons==2 && ((leptons[0].lepID == 11 && leptons[1].lepID == 13)||(leptons[0].lepID == 13 && leptons[1].lepID == 11)));
+				if (nLeptons>=2 && ((leptons[0].lepID == 11 && leptons[1].lepID == 13)||(leptons[0].lepID == 13 && leptons[1].lepID == 11)));
 				else
 					continue;
 				}
