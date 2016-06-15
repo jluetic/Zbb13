@@ -751,7 +751,7 @@ void getStatistics(TString lepSel, int jetPtMin, int jetEtaMax, const TString& v
 	} 
 
 	// close all input root files
-	fData->Close();
+	//fData->Close();
 
 	cout << "Closed all files" << endl;
 
