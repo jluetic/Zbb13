@@ -295,10 +295,10 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
 		//====================================//
 		double weight = norm_;
 		double weightBJets = norm_;
-		if (hasRecoInfo && !EvtIsRealData) {
+		//if (hasRecoInfo && !EvtIsRealData) {
 			//cout << "PU weight: " << EvtPuCntTruth << " , " << puWeight.weight(EvtPuCntTruth) << "\n";
-			weight *= puWeight.weight(EvtPuCntTruth);
-		}
+		//	weight *= puWeight.weight(EvtPuCntTruth);
+		//}	
 
 		if(addPuWeights){
 			double add_w_ = addPuWeights->GetBinContent(addPuWeights->GetXaxis()->FindBin(EvtVtxCnt));
@@ -2506,12 +2506,12 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
 					}
 				}
 				BJetsMass_Zinc2Bjet->Fill((Jet1+Jet2).M(), weightBJets);
+				mindRBJets_Zinc2Bjet->Fill(deltaR(Jet1, Jet2), weightBJets);
+				mindPhiBJets_Zinc2Bjet->Fill(deltaPhi(Jet1, Jet2), weightBJets);
 				double dR1 = deltaR(EWKBoson,Jet1);
 				double dR2 = deltaR(EWKBoson,Jet2);
 				double dPhi1 = deltaPhi(EWKBoson,Jet1);
 				double dPhi2 = deltaPhi(EWKBoson,Jet2);
-				mindRBJets_Zinc2Bjet->Fill(deltaR(Jet1, Jet2), weightBJets);
-				mindPhiBJets_Zinc2Bjet->Fill(deltaPhi(Jet1, Jet2), weightBJets);
 				if (dR1>dR2) {
 					double tmp = dR1;
 					dR2=dR1;
@@ -2530,18 +2530,24 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
 					mindRBJetToZ_Zinc2Bjet_b->Fill(dR1,weightBJets);
 					maxdRBJetToZ_Zinc2Bjet_b->Fill(dR2,weightBJets);
 					mindPhiBJetToZ_Zinc2Bjet_b->Fill(dPhi1,weightBJets);
+					mindRBJets_Zinc2Bjet_b->Fill(deltaR(Jet1, Jet2), weightBJets);
+					mindPhiBJets_Zinc2Bjet_b->Fill(deltaPhi(Jet1, Jet2), weightBJets);
 				}
 				else if (evFlav==4) {
 					BJetsMass_Zinc2Bjet_c->Fill((Jet1+Jet2).M(), weightBJets);
 					mindRBJetToZ_Zinc2Bjet_c->Fill(dR1,weightBJets);
 					maxdRBJetToZ_Zinc2Bjet_c->Fill(dR2,weightBJets);
 					mindPhiBJetToZ_Zinc2Bjet_c->Fill(dPhi1,weightBJets);
+					mindRBJets_Zinc2Bjet_c->Fill(deltaR(Jet1, Jet2), weightBJets);
+					mindPhiBJets_Zinc2Bjet_c->Fill(deltaPhi(Jet1, Jet2), weightBJets);
 				}
 				else {
 					BJetsMass_Zinc2Bjet_l->Fill((Jet1+Jet2).M(), weightBJets);
 					mindRBJetToZ_Zinc2Bjet_l->Fill(dR1,weightBJets);
 					maxdRBJetToZ_Zinc2Bjet_l->Fill(dR2,weightBJets);
 					mindPhiBJetToZ_Zinc2Bjet_c->Fill(dPhi1,weightBJets);
+					mindRBJets_Zinc2Bjet_l->Fill(deltaR(Jet1, Jet2), weightBJets);
+					mindPhiBJets_Zinc2Bjet_l->Fill(deltaPhi(Jet1, Jet2), weightBJets);
 				}
 			}
 
@@ -2554,8 +2560,8 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
 				else ZptBJets_Zinc3Bjet_l->Fill(EWKBoson.Pt(), weightBJets);
 			}
 
-			//inclusive
-			// 1 b jet - inc
+			//exclusive
+			// 1 b jet - exc
 			if (nGoodBJets==1){
 				//METE_Zinc1Bjet->Fill(MET.E(),weightBJets);
 				//METPt_Zinc1Bjet->Fill(MET.Pt(),weightBJets);
@@ -2677,18 +2683,24 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
 					mindRBJetToZ_Zexc2Bjet_b->Fill(dR1,weightBJets);
 					maxdRBJetToZ_Zexc2Bjet_b->Fill(dR2,weightBJets);
 					mindPhiBJetToZ_Zexc2Bjet_b->Fill(dPhi1,weightBJets);
+					mindRBJets_Zexc2Bjet_b->Fill(deltaR(Jet1, Jet2), weightBJets);
+					mindPhiBJets_Zexc2Bjet_b->Fill(deltaPhi(Jet1, Jet2), weightBJets);
 				}
 				else if (evFlav==4) {
 					BJetsMass_Zexc2Bjet_c->Fill((Jet1+Jet2).M(), weightBJets);
 					mindRBJetToZ_Zexc2Bjet_c->Fill(dR1,weightBJets);
 					maxdRBJetToZ_Zexc2Bjet_c->Fill(dR2,weightBJets);
 					mindPhiBJetToZ_Zexc2Bjet_c->Fill(dPhi1,weightBJets);
+					mindRBJets_Zexc2Bjet_c->Fill(deltaR(Jet1, Jet2), weightBJets);
+					mindPhiBJets_Zexc2Bjet_c->Fill(deltaPhi(Jet1, Jet2), weightBJets);
 				}
 				else {
 					BJetsMass_Zexc2Bjet_l->Fill((Jet1+Jet2).M(), weightBJets);
 					mindRBJetToZ_Zexc2Bjet_l->Fill(dR1,weightBJets);
 					maxdRBJetToZ_Zexc2Bjet_l->Fill(dR2,weightBJets);
 					mindPhiBJetToZ_Zexc2Bjet_c->Fill(dPhi1,weightBJets);
+					mindRBJets_Zexc2Bjet_l->Fill(deltaR(Jet1, Jet2), weightBJets);
+					mindPhiBJets_Zexc2Bjet_l->Fill(deltaPhi(Jet1, Jet2), weightBJets);
 				}
 			}
 

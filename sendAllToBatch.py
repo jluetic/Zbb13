@@ -29,7 +29,7 @@ for s in samples:
 		f_new.write(bla.getCommand()+"\n")
 		f_new.close()
 
-		command = "bsub -q 1nd -o out < new_script.sh"
+		command = "bsub -q 1nh -o out < new_script.sh"
 		print command
 		if doSubmit:
 			subprocess.call(command, shell=True)
