@@ -395,8 +395,11 @@ void ZJets::Loop(bool hasRecoInfo, bool hasGenInfo, int jobNum, int nJobs,
 			sort(vetoMuons.begin(), vetoMuons.end(), LepDescendingOrder);
 			sort(vetoElectrons.begin(), vetoElectrons.end(), LepDescendingOrder);
 
-			//if (nLeptons>=2 && lepSel == EMu && ((leptons[0].lepID == 11 && leptons[1].lepID == 13)||(leptons[0].lepID == 13 && leptons[1].lepID == 11))); 
-			//else continue;
+			if (lepSel == EMu){
+				if (nLeptons==2 && ((leptons[0].lepID == 11 && leptons[1].lepID == 13)||(leptons[0].lepID == 13 && leptons[1].lepID == 11)));
+				else
+					continue;
+				}
 
 			if ((lepSel == DMu || lepSel == DE || lepSel == EMu) && nLeptons >= 2) {
 				// --- lepton energy scale and resolution variation ---
